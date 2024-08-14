@@ -29,28 +29,7 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbos
 
   trg_db <- file.path(build_dir, paste0(prj_cd, ".accdb"))
 
-  if (file.exists(trg_db) && !overwrite) {
-    message_a <- sprintf("The trg_db database: '%s' already exists.", trg_db)
-    message_b <- "Please provide a different project code or set overwrite=TRUE."
-    stop(paste(message_a, message_b, sep = "\n"))
-  }
-
-  if (!file.exists(template_db)) {
-    message <-
-      sprintf(
-        paste0(
-          "Could not find the template database '%s'. ",
-          "Make sure it exists and try again"
-        ),
-        template_db
-      )
-    stop(message)
-  } else {
-    file.copy(template_db, trg_db, overwrite = overwrite)
-  }
-
-  date_format <- "%Y-%m-%d %H:%M:%S"
-
+  check_db_setup(trg_db, template_db, overwrite)
 
   fn011 <- get_creesys_fn011(prj_cd, src_dbase)
 
@@ -64,6 +43,7 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbos
     cat(sprintf("\tSC011 records: %s\n", nrow(fn011)))
   }
 
+  date_format <- "%Y-%m-%d %H:%M:%S"
   fn011$PRJ_DATE0 <- as.Date(fn011$PRJ_DATE0, format = date_format)
   fn011$PRJ_DATE1 <- as.Date(fn011$PRJ_DATE1, format = date_format)
   fn011$LAKE <- lake
@@ -186,8 +166,6 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbos
     fn125_lamprey <- process_fn125_lamprey(fn125_lamprey)
     append_data(trg_db, "FN125_lamprey", fn125_lamprey, verbose = verbose)
   }
-
-
 
   fn126 <- get_creesys_fn126(prj_cd, src_dbase)
   cat(sprintf("\tSC126 records: %s\n", nrow(fn126)))

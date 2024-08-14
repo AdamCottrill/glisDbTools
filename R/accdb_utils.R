@@ -1,3 +1,57 @@
+##' Add a meta data record to the target database
+##'
+##' This function connects to the target database and creates a README
+##' table with a single record that has the source of the data and the
+##' date that it was populated.
+##' @title Populate README with source and timestamp
+##' @param trg_db - the path to the populated template database.
+##' @param src - the name of the source databae (e.g., "creesys", "nearshore master")
+##' @return NULL
+##' @author R. Adam Cottrill
+populate_readme <- function(trg_db, src) {
+
+  readme_msg <- sprintf("Template populated from %s on %s", src, Sys.time())
+  README <- data.frame("README" = readme_msg)
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
+  RODBC::sqlSave(conn, README, rownames = F, append = FALSE)
+  RODBC::odbcClose(conn)
+
+
+}
+
+##' Check for target and template databases.
+##'
+##' A helper funciton used by the data mappers to verify that the
+##' target and template dateabase exists in the expected locations.
+##' @title Check for target and template databases.
+##' @param trg_db - the path to the target database.
+##' @param template_db - the path to the template database.
+##' @param overwrite - if the target database already exists, should
+##'   it be replaced?
+##' @return NULL
+##' @author R. Adam Cottrill
+check_db_setup <- function(trg_db, template_db, overwrite) {
+  if (file.exists(trg_db) && !overwrite) {
+    message_a <- sprintf("The trg_db database: '%s' already exists.", trg_db)
+    message_b <- "Please provide a different project code or set overwrite=TRUE."
+    stop(paste(message_a, message_b, sep = "\n"))
+  }
+
+  if (!file.exists(template_db)) {
+    message <-
+      sprintf(
+        paste0(
+          "Could not find the template database '%s'. ",
+          "Make sure it exists and try again"
+        ),
+        template_db
+      )
+    stop(message)
+  } else {
+    file.copy(template_db, trg_db, overwrite = overwrite)
+  }
+}
+
 
 ##' Verify that the src_db is an accdb file that exists
 ##'
@@ -81,9 +135,17 @@ fetch_sql <- function(sql, src_db, toupper=T){
 ##'   project code.
 ##' @author R. Adam Cottrill
 valid_prj_cd <- function(prj_cd) {
-  # update the regex if you are using this after 2030!
-  prj_cd_regex <- "^[A-Z0-9]{3}_[A-Z]{2}[0-9][0-9]_[A-Z0-9]{3}$"
+
+  if (grepl(", ", prj_cd)) {
+    prj_cds <- gsub("'", "", strsplit(prj_cd, ", ")[[1]])
+    for (item in prj_cds) {
+      return(valid_prj_cd(item))
+    }
+  }
+# update the regex if you are using this after 2030!
+  prj_cd_regex <- "^'?[A-Z0-9]{3}_[A-Z]{2}\\d{2}_[A-Z0-9]{3}'?$"
   return(grepl(prj_cd_regex, prj_cd))
+
 }
 
 
@@ -104,8 +166,8 @@ valid_prj_cd <- function(prj_cd) {
 ##' @author R. Adam Cottrill
 format_prj_cd_sql <- function(sql, prj_cd) {
 
-  # check prj_cd here
-  if (!valid_prj_cd(prj_cd)) {
+  if (valid_prj_cd(prj_cd)==FALSE) {
+
     msg <- sprintf("the provided prj_cd (%s) does not appear to be a valid prj_cd!",
       prj_cd)
     stop(msg)
@@ -287,4 +349,54 @@ get_src_prj_cds <- function(src_db, src_table="FN011"){
   dat <- RODBC::sqlQuery(DBConnection, stmt)
   RODBC::odbcClose(DBConnection)
   return(dat)
+}
+
+
+##' Add mode to FN121 based on GR, GRUSE and ORIENT
+##'
+##' This function is used by the nearshore and offshore mapping
+##' funcitons to populate the correct MODE value based on the records
+##' in the FN028 table and the values of GEAR, GEAR_USE and ORIENT
+##' specified in each FN121 record.
+##' @title Add Mode to FN121
+##' @param fn121 - dataframe representing sampling events (net sets)
+##' @param fn028 - dataframe representing available modes (set methods)
+##' @return fn121 dataframe with populated mode field added
+##' @author R. Adam Cottrill
+add_mode <- function(fn121, fn028) {
+  # populate the correct mode for each sam:
+  x121 <- subset(fn121, select = c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT"))
+  x028 <- subset(fn028, select = c("PRJ_CD", "GR", "GRUSE", "ORIENT", "MODE"))
+  tmp <- merge(x121, x028, by = c("PRJ_CD", "GR", "GRUSE", "ORIENT"))
+  foo <- merge(fn121, tmp, by = c(
+    "PRJ_CD", "SAM", "GR", "GRUSE",
+    "ORIENT"
+  ), all.x=TRUE)
+  return (foo[with(foo, order(PRJ_CD, SAM)),])
+}
+
+
+
+
+
+##' Set waterhaul to True if there are no FN123 records.
+##'
+##' This function set FN122.WATERHAUL values to TRUE or 0 based on
+##' values in the FN123 table.  If there are not fn123 records
+##' associated with an Fn122 record, waterhaul is set to TRUE.
+##' @title Set waterhaul
+##' @param dbase - path the populated tempalte database.
+##' @return odbc connection status ('0' (success) or '1')
+##' @author R. Adam Cottrill
+update_FN122_waterhaul <- function(dbase) {
+  sql <- "UPDATE FN122 LEFT JOIN FN123
+ON (FN122.EFF = FN123.EFF)
+AND(FN122.SAM = FN123.SAM)
+AND(FN122.PRJ_CD = FN123.PRJ_CD)
+SET FN122.WATERHAUL = 'True'
+WHERE (((FN123.PRJ_CD) Is Null));"
+  check_accdb(dbase)
+  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "")
+  RODBC::sqlQuery(conn, sql)
+  return(RODBC::odbcClose(conn))
 }
