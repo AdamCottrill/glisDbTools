@@ -58,10 +58,10 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   fn011 <- get_nearshore_fn011(prj_cds, src_dbase)
   missing <- setdiff(prj_cds, unique(fn011$PRJ_CD))
   if (length(missing)) {
-    msg <- "Projects with the following project codes could not be found:"
+    msg <- "Projects with the following project codes could not be found:\n"
     cat(msg)
     for (item in missing) {
-      cat(sprintf("\t%s", item))
+      cat(sprintf("\t%s\n", item))
     }
   } else {
     msg <- "Popuplating Template Database for the following projects:\n"
@@ -131,17 +131,22 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   fn121 <- fn121_add_mode(fn121, fn028)
 
   fn121$SSN <- "00"
-  fn121$SUBSPACE <- "00"
+  fn121$SUBSPACE <- "11"
   fn121$PROCESS_TYPE <- process_type
   fn121$EFFDT0 <- as.Date(fn121$EFFDT0)
   fn121$EFFDT1 <- as.Date(fn121$EFFDT1)
   fn121$EFFTM0 <- get_time(fn121$EFFTM0)
   fn121$EFFTM1 <- get_time(fn121$EFFTM1)
 
-  append_data(trg_db, "FN121", fn121, verbose = verbose)
 
   fn122 <- get_nearshore_fn122(prj_cds, src_dbase)
   cat(sprintf("\tFN122 records: %s\n", nrow(fn122)))
+
+  cat("\tUpdating FN121.PROCESS_TYPE....")
+  fn121 <- fn121_populate_process_type(fn028, fn121, fn122, gear_effort_process_types)
+  append_data(trg_db, "FN121", fn121, verbose = verbose)
+
+  #now we can append the FN122 records:
   append_data(trg_db, "FN122", fn122, verbose = verbose)
 
   fn123 <- get_nearshore_fn123(prj_cds, src_dbase)
@@ -160,7 +165,7 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   cat(sprintf("\tFN123 records: %s\n", nrow(fn123)))
   append_data(trg_db, "FN123", fn123, verbose = verbose)
 
-  cat("Updaing FN122.waterhaul....\n")
+  cat("\tUpdating FN122.waterhaul....\n")
   update_FN122_waterhaul(trg_db)
 
   fn125 <- get_nearshore_fn125(prj_cds, src_dbase)
@@ -234,8 +239,7 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
     append_data(trg_db, "FN127", fn127, verbose = verbose)
   }
 
-  src <- "Nearshore Master"
-  populate_readme(trg_db, src)
+  populate_readme(trg_db, src_dbase)
 
   msg <- paste0(
     sprintf(
@@ -548,6 +552,53 @@ fn121_add_mode <- function(fn121, fn028) {
   ))
   drop <- c("GR", "GRUSE", "ORIENT")
   return(fn121[, !(names(fn121) %in% drop)])
+}
+
+
+##' Populate FN121 Process Type based on gear and FN122 records
+##'
+##' This function is used to populate the process type assocaited with
+##' each FN121 record by using the gear from the FN028 table, the
+##' number of child fn122 records and the known gear effort process
+##' types.
+##' @title Populate FN121 Process Type
+##' @param fn028 - fn028 table for the selected project(s)
+##' @param fn121 - fn121 table for the selected project(s)
+##' @param fn122 - fn122 table for the selected project(s)
+##' @param gear_effort_process_types datafame with gear, effort and
+##'   process types.
+##' @return fn121 dataframe with populated PROCESS_TYPE column
+##' @author R. Adam Cottrill
+fn121_populate_process_type <- function(fn028, fn121, fn122, gear_effort_process_types) {
+
+  eff_counts <- stats::aggregate(EFF ~ PRJ_CD + SAM, data = fn122, FUN = length)
+  gept_counts <- stats::aggregate(EFF ~ GR + PROCESS_TYPE,
+    data = gear_effort_process_types, FUN = length)
+
+  prj_sam_gr <- merge(fn121[, c("PRJ_CD", "SAM", "MODE")],
+    fn028[, c("PRJ_CD", "MODE", "GR")],
+    by = c("PRJ_CD", "MODE"), all.x = TRUE
+  )
+
+  # add the effort conts to our project sam_gr:
+
+  prj_sam_gr <- merge(prj_sam_gr[, c("PRJ_CD", "SAM", "GR")],
+    eff_counts[, c("PRJ_CD", "SAM", "EFF")],
+    by = c("PRJ_CD", "SAM"), all.x = TRUE
+  )
+
+  prj_sam_gr <- merge(prj_sam_gr, gept_counts,
+    by = c("GR", "EFF"), all.x = TRUE
+  )
+
+  prj_sam_gr$PROCESS_TYPE <- ifelse(is.na(prj_sam_gr$PROCESS_TYPE) &
+                                      prj_sam_gr$EFF == 1, 1, prj_sam_gr$PROCESS_TYPE)
+  prj_sam_gr <- prj_sam_gr[, c("PRJ_CD", "SAM", "PROCESS_TYPE")]
+
+  fn121$PROCESS_TYPE <- NULL
+  fn121 <- merge(fn121, prj_sam_gr, by = c("PRJ_CD", "SAM"), all.x = TRUE)
+
+  return(fn121)
 }
 
 
@@ -922,7 +973,7 @@ get_nearshore_fn125_ages <- function(prj_cds, src_db) {
                  [AGEA]
              ),
              1,
-             0
+             NULL
          ) as AGE_FAIL
      from
          IA125
@@ -980,7 +1031,7 @@ get_nearshore_fn127 <- function(prj_cds, src_db) {
      '' AS AGESTRM,
      '' AS AGELAKE,
      '' AS SPAWNCHKCNT,
-     IIf(IsNull([AGEA]),1,0) AS AGE_FAIL
+     IIf(IsNull([AGEA]),1,NULL) AS AGE_FAIL
        FROM IA127
      WHERE PRJ_CD in (%s)
      ORDER BY PRJ_CD, Trim(Str([IA127].[SAM])), EFF, Spc, GRP, FISH,

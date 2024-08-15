@@ -5,12 +5,13 @@
 ##' date that it was populated.
 ##' @title Populate README with source and timestamp
 ##' @param trg_db - the path to the populated template database.
-##' @param src - the name of the source databae (e.g., "creesys", "nearshore master")
+##' @param src_db - the path to the src database.  The basename of the
+##'   databas in included in the readme messages.
 ##' @return NULL
 ##' @author R. Adam Cottrill
-populate_readme <- function(trg_db, src) {
+populate_readme <- function(trg_db, src_db) {
 
-  readme_msg <- sprintf("Template populated from %s on %s", src, Sys.time())
+  readme_msg <- sprintf("Template populated from %s on %s", basename(src_db), Sys.time())
   README <- data.frame("README" = readme_msg)
   conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
   RODBC::sqlSave(conn, README, rownames = F, append = FALSE)

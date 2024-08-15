@@ -4,15 +4,16 @@
 \alias{populate_readme}
 \title{Populate README with source and timestamp}
 \usage{
-populate_readme(trg_db, src)
+populate_readme(trg_db, src_db)
 }
 \arguments{
 \item{trg_db}{\itemize{
 \item the path to the populated template database.
 }}
 
-\item{src}{\itemize{
-\item the name of the source databae (e.g., "creesys", "nearshore master")
+\item{src_db}{\itemize{
+\item the path to the src database.  The basename of the
+databas in included in the readme messages.
 }}
 }
 \description{

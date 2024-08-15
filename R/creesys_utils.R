@@ -219,6 +219,9 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbos
     message("Looks like weekend and weekday daytypes are switched.\nSwitching them for you.")
     switch_and_update_dtp(trg_db)
   }
+
+  populate_readme(trg_db, src_dbase)
+
   msg <- paste0(
     sprintf(
       "Done. The populated database can be found here: %s.  \n", trg_db
@@ -740,7 +743,7 @@ get_creesys_fn125_ages <- function(prj_cd, src_db) {
                  [AGEA]
              ),
              1,
-             0
+             NULL
          ) as AGE_FAIL
      from
          FN125
@@ -791,7 +794,7 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
      '' AS AGESTRM,
      '' AS AGELAKE,
      '' AS SPAWNCHKCNT,
-     IIf(IsNull([AGEA]),1,0) AS AGE_FAIL
+     IIf(IsNull([AGEA]),1,NULL) AS AGE_FAIL
        FROM FN127
      WHERE PRJ_CD='%s'
      ORDER BY PRJ_CD, Trim(Str([FN127].[SAM])), EFF, Spc, GRP, FISH,
