@@ -18,10 +18,8 @@ data can be used.
 }}
 }
 \value{
-\itemize{
-\item a dataframe containing all of the PRJ_CD values in the
+a dataframe containing all of the PRJ_CD values in the
 provided table.
-}
 }
 \description{
 Get distinct project codes in the source database
