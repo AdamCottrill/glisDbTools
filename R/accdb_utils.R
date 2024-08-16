@@ -540,15 +540,19 @@ compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
   # check table names - if the table isn't in our data base we need to
   # stop and let the user know:
   tablesx <- get_tablenames(dbX)
-  if (!(tablename %in% tablesx)){
-    msg <- sprintf("Table '%s' does not appear in the first database '%s'./n",
-      tablename, dbX)
+  if (!(tablename %in% tablesx)) {
+    msg <- sprintf(
+      "Table '%s' does not appear in the first database '%s'./n",
+      tablename, dbX
+    )
     stop(msg)
   }
   tablesy <- get_tablenames(dbY)
-  if (!(tablename %in% tablesy)){
-    msg <- sprintf("Table '%s' does not appear in the second database '%s'./n",
-      tablename, dbY)
+  if (!(tablename %in% tablesy)) {
+    msg <- sprintf(
+      "Table '%s' does not appear in the second database '%s'./n",
+      tablename, dbY
+    )
     stop(msg)
   }
 
