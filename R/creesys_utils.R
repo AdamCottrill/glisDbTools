@@ -22,10 +22,11 @@
 ##' @export
 ##' @return NULL
 ##' @author R. Adam Cottrill
-creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbose = FALSE, overwrite = FALSE) {
-
+creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", verbose = FALSE, overwrite = FALSE) {
   build_dir <- file.path(getwd(), "build")
-  if (!dir.exists(build_dir)) {dir.create(build_dir) }
+  if (!dir.exists(build_dir)) {
+    dir.create(build_dir)
+  }
 
   trg_db <- file.path(build_dir, paste0(prj_cd, ".accdb"))
 
@@ -117,7 +118,8 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbos
   cat(sprintf("\tSC121 records: %s\n", nrow(fn121)))
   fn121$ITVSEQ <- ifelse(is.na(fn121$ITVSEQ),
     as.numeric(rownames(fn121)),
-    fn121$ITVSEQ)
+    fn121$ITVSEQ
+  )
   fn121$DATE <- as.Date(fn121$DATE, format = date_format)
   fn121$ITVTM0 <- get_time(fn121$ITVTM0)
   fn121$SAMTM0 <- get_time(fn121$SAMTM0)
@@ -198,7 +200,7 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbos
     append_data(trg_db, "FN127", fn127, verbose = verbose)
   }
 
-  #angler questions:
+  # angler questions:
   angler_questions <- get_creesys_questions(prj_cd, src_dbase)
   cat(sprintf("\tAngler Questions records: %s\n", nrow(angler_questions)))
 
@@ -206,7 +208,7 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake="HU",verbos
     append_data(trg_db, "AnglerQuestions", angler_questions, verbose = verbose)
   }
 
-  #angler answers:
+  # angler answers:
   angler_answers <- get_creesys_answers(prj_cd, src_dbase)
   cat(sprintf("\tAngler Answers records: %s\n", nrow(angler_answers)))
 
@@ -718,7 +720,6 @@ get_creesys_fn126 <- function(prj_cd, src_db) {
 ##'   creel
 ##' @author R. Adam Cottrill
 get_creesys_fn125_ages <- function(prj_cd, src_db) {
-
   sql <- "select
          PRJ_CD,
          Trim(Str([FN125].[SAM])) as SAM,
@@ -728,7 +729,7 @@ get_creesys_fn125_ages <- function(prj_cd, src_db) {
          FISH,
          125 as ageId,
          AGE as AGEA,
-         'True' as Preferred,
+         'TRUE' as Preferred,
          AGEMT,
          XAGEM,
          CONF,
@@ -785,7 +786,7 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
      FISH,
      IIf(IsNull([FN127].[ageid]),1,[FN127].[ageid]) AS AGEID,
      AGEA,
-     'False' AS Preferred,
+     'FALSE' AS Preferred,
      AGEMT,
      CONF,
      '' AS NCA,
@@ -818,7 +819,6 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
 ##'   creel
 ##' @author R. Adam Cottrill
 get_creesys_questions <- function(prj_cd, src_db) {
-
   sql <- "SELECT PRJ_CD, ANG_OP AS QUESTION_NUMBER, ANG_QUES AS QUESTION_TEXT
      FROM OptionQ
      WHERE PRJ_CD='%s';"
@@ -894,11 +894,9 @@ switch_and_update_dtp <- function(trg_db) {
 ##'   tables. DTP1 for the FN025 table)
 ##' @return NULL
 ##' @author R. Adam Cottrill
-switch_dtp <- function(con, table, field="DTP"){
-
-
+switch_dtp <- function(con, table, field = "DTP") {
   stmt <- "update [%s] set [%s]= iif([%s]='1', '2', '1')"
-  sql <- sprintf(stmt,table, field, field)
+  sql <- sprintf(stmt, table, field, field)
   print(sprintf("updating %s", table))
   RODBC::sqlQuery(con, sql)
 }
@@ -916,14 +914,13 @@ switch_dtp <- function(con, table, field="DTP"){
 ##' @param table the table to run the update query against.
 ##' @return NULL
 ##' @author R. Adam Cottrill
-update_stratum_dtp <- function(con, table){
+update_stratum_dtp <- function(con, table) {
   stmt <- "update [%s] set stratum =
 IIf(Mid([stratum],4,1)=1,
 Left([stratum],3) & '2' & Right([stratum],7),
 Left([stratum],3) & '1' & Right([stratum],7))
 "
-  sql <- sprintf(stmt,table)
-      print(sprintf("updating %s", table))
+  sql <- sprintf(stmt, table)
+  print(sprintf("updating %s", table))
   RODBC::sqlQuery(con, sql)
-
 }

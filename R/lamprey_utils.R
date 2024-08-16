@@ -58,9 +58,9 @@ process_fn125_lamprey <- function(df) {
   for (i in 1:nrow(df)) {
     fish <- df[i, ]
     if (is.na(df$LAMIJC[i])) {
-        fish$LAMIJC_TYPE <- NA
-        fish$LAMIJC_SIZE <- NA
-        tmp <- rbind(tmp, fish)
+      fish$LAMIJC_TYPE <- NA
+      fish$LAMIJC_SIZE <- NA
+      tmp <- rbind(tmp, fish)
     } else {
       wounds <- split_lamijc(df$LAMIJC[i])
       if (wounds[1, 1] == "0") {

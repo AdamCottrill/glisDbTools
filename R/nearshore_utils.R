@@ -25,8 +25,7 @@
 ##' @export
 ##' @return NULL
 ##' @author R. Adam Cottrill
-nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lake = "HU", verbose = FALSE, overwrite = FALSE) {
-
+nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, lake = "HU", verbose = FALSE, overwrite = FALSE) {
   # TODO:
   process_type <- 1
 
@@ -36,7 +35,7 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
     dir.create(build_dir)
   }
 
-  if(is.na(fname)){
+  if (is.na(fname)) {
     if (length(prj_cds) > 3) {
       msg <- paste0(
         "More than three project codes were submitted.\n",
@@ -44,7 +43,7 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
       )
       message(msg)
     }
-    tmp <- prj_cds[1:min(length(prj_cds),3)]
+    tmp <- prj_cds[1:min(length(prj_cds), 3)]
     fname <- paste(tmp, collapse = "-")
     fname <- sprintf("%s.accdb", fname)
   }
@@ -104,7 +103,7 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   counter <- 1
   for (i in 1:nrow(fn028)) {
     if (i > 1) {
-      if (fn028$PRJ_CD[i-1] == fn028$PRJ_CD[i]) {
+      if (fn028$PRJ_CD[i - 1] == fn028$PRJ_CD[i]) {
         counter <- counter + 1
       } else {
         counter <- 1
@@ -116,10 +115,10 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   append_data(trg_db, "FN028", fn028, verbose = verbose)
 
 
-# Get list of gear/effort/process types from the glfishr package (requires VPN connection)
+  # Get list of gear/effort/process types from the glfishr package (requires VPN connection)
   gear_effort_process_types <- glfishr::get_gear_process_types()
 
-  gear_effort_process_types <- gear_effort_process_types[gear_effort_process_types$GR %in% fn028$GR,]
+  gear_effort_process_types <- gear_effort_process_types[gear_effort_process_types$GR %in% fn028$GR, ]
   cat(sprintf("\tgear_effort_process_types records: %s\n", nrow(gear_effort_process_types)))
   append_data(trg_db, "Gear_Effort_Process_Types", gear_effort_process_types)
 
@@ -142,21 +141,21 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   fn122 <- get_nearshore_fn122(prj_cds, src_dbase)
   cat(sprintf("\tFN122 records: %s\n", nrow(fn122)))
 
-  cat("\tUpdating FN121.PROCESS_TYPE....")
+  cat("\tUpdating FN121.PROCESS_TYPE....\n")
   fn121 <- fn121_populate_process_type(fn028, fn121, fn122, gear_effort_process_types)
   append_data(trg_db, "FN121", fn121, verbose = verbose)
 
-  #now we can append the FN122 records:
+  # now we can append the FN122 records:
   append_data(trg_db, "FN122", fn122, verbose = verbose)
 
   fn123 <- get_nearshore_fn123(prj_cds, src_dbase)
 
-  #before we can append the fn123 data, we need to build and insert our fn012 records.
-  fn012 <- make_nearshore_fn012(fn011)
+  # before we can append the fn123 data, we need to build and insert our fn012 records.
+  fn012 <- make_fn012(fn011)
   fn012 <- glfishr:::prune_unused_fn012(fn012, fn123)
 
   spc_grp_caught <- unique(fn123[, c("PRJ_CD", "SPC", "GRP")])
-  fn012 <- merge(fn012, spc_grp_caught, all.y=TRUE)
+  fn012 <- merge(fn012, spc_grp_caught, all.y = TRUE)
 
   cat(sprintf("\tFN012 records: %s\n", nrow(fn012)))
   append_data(trg_db, "FN012", fn012, verbose = verbose)
@@ -183,25 +182,30 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   fn125_tags <- get_nearshore_fn125_tags(prj_cds, src_dbase)
   fn125_xtags <- get_nearshore_fn125_xtags(prj_cds, src_dbase)
   if (nrow(fn125_xtags)) {
-    msg <- paste0(sprintf("\t **NOTE**: %s XTAGID values found!!.",
-      nrow(fn125_xtags)),
-    "Check TAGSTAT and TAGDOC fields carefully.\n")
+    msg <- paste0(
+      sprintf(
+        "\t **NOTE**: %s XTAGID values found!!.",
+        nrow(fn125_xtags)
+      ),
+      "Check TAGSTAT and TAGDOC fields carefully.\n"
+    )
     cat(msg)
     fn125_tags <- rbind(fn125_tags, fn125_xtags)
-    fn125_tags <- fn125_tags[with(fn125_tags,
-      order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, FISH_TAG_ID)), ]
-  counter <- 1
-  for (i in 1:nrow(fn125_tags)) {
-    if (i > 1) {
-      if (fn125_tags$FISH_TAG_ID[i - 1] == fn125_tags$FISH_TAG_ID[i]) {
-        counter <- counter + 1
-      } else {
-        counter <- 1
+    fn125_tags <- fn125_tags[with(
+      fn125_tags,
+      order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, FISH_TAG_ID)
+    ), ]
+    counter <- 1
+    for (i in 1:nrow(fn125_tags)) {
+      if (i > 1) {
+        if (fn125_tags$FISH_TAG_ID[i - 1] == fn125_tags$FISH_TAG_ID[i]) {
+          counter <- counter + 1
+        } else {
+          counter <- 1
+        }
       }
+      fn125_tags$FISH_TAG_ID[i] <- counter
     }
-    fn125_tags$FISH_TAG_ID[i] <- counter
-  }
-
   }
 
   cat(sprintf("\tFN125_tag records: %s\n", nrow(fn125_tags)))
@@ -234,7 +238,7 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
   fn127 <- rbind(fn125_ages, fn127)
   cat(sprintf("\tSC127 records: %s\n", nrow(fn127)))
   if (nrow(fn127)) {
-    fn127 <- fn127[with(fn127, order(PRJ_CD,SAM,EFF,SPC,GRP,FISH,AGEID)),]
+    fn127 <- fn127[with(fn127, order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, AGEID)), ]
     fn127$AGEMT[is.na(fn127$AGEMT)] <- "99999"
     append_data(trg_db, "FN127", fn127, verbose = verbose)
   }
@@ -248,7 +252,6 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname=NA, lak
     "You should be able to check it with Process Validate and upload it to the assessment portal.\n"
   )
   message(msg)
-
 }
 
 
@@ -273,7 +276,7 @@ get_nearshore_fn011 <- function(prj_cds, src_db) {
           WHERE PRJ_CD in (%s)
           ORDER BY Year, PRJ_CD;"
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -305,7 +308,7 @@ get_nearshore_fn022 <- function(prj_cds, src_db) {
            FROM IA121 GROUP BY PRJ_CD, '00', 'Coming Soon'
           HAVING PRJ_CD in (%s);"
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -345,7 +348,7 @@ get_nearshore_fn026 <- function(prj_cds, src_db) {
           GROUP BY PRJ_CD, '00', 'Space is ...'
           HAVING PRJ_CD in (%s);
           "
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -389,7 +392,7 @@ get_nearshore_fn026_subspace <- function(prj_cds, src_db) {
           GROUP BY PRJ_CD
           HAVING PRJ_CD in (%s);
           "
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -435,7 +438,7 @@ get_nearshore_fn028 <- function(prj_cds, src_db) {
           IIf(IsNull([IA121].[ORIENT]),'9',[IA121].[ORIENT]),
           'Gear: ' & [GR] & ', Orient: ' & [ORIENT] & ', Gear use:' & IIf(IsNull([IA121].[GRUSE]),'9',[IA121].[GRUSE])
           HAVING PRJ_CD in (%s);"
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -527,7 +530,7 @@ get_nearshore_fn121 <- function(prj_cds, src_db) {
             PRJ_CD,
             Trim(Str([IA121].[SAM]));"
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -536,69 +539,6 @@ get_nearshore_fn121 <- function(prj_cds, src_db) {
 
   dat <- fetch_sql(stmt, src_db)
   return(dat)
-}
-
-
-
-
-
-
-fn121_add_mode <- function(fn121, fn028) {
-  # populate the correct mode for each sam:
-  x121 <- fn121[, c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT")]
-  x028 <- fn028[, c("PRJ_CD", "GR", "GRUSE", "ORIENT", "MODE")]
-  tmp <- merge(x121, x028, by = c("PRJ_CD", "GR", "GRUSE", "ORIENT"))
-  fn121 <- merge(fn121, tmp, by = c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT"
-  ))
-  drop <- c("GR", "GRUSE", "ORIENT")
-  return(fn121[, !(names(fn121) %in% drop)])
-}
-
-
-##' Populate FN121 Process Type based on gear and FN122 records
-##'
-##' This function is used to populate the process type assocaited with
-##' each FN121 record by using the gear from the FN028 table, the
-##' number of child fn122 records and the known gear effort process
-##' types.
-##' @title Populate FN121 Process Type
-##' @param fn028 - fn028 table for the selected project(s)
-##' @param fn121 - fn121 table for the selected project(s)
-##' @param fn122 - fn122 table for the selected project(s)
-##' @param gear_effort_process_types datafame with gear, effort and
-##'   process types.
-##' @return fn121 dataframe with populated PROCESS_TYPE column
-##' @author R. Adam Cottrill
-fn121_populate_process_type <- function(fn028, fn121, fn122, gear_effort_process_types) {
-
-  eff_counts <- stats::aggregate(EFF ~ PRJ_CD + SAM, data = fn122, FUN = length)
-  gept_counts <- stats::aggregate(EFF ~ GR + PROCESS_TYPE,
-    data = gear_effort_process_types, FUN = length)
-
-  prj_sam_gr <- merge(fn121[, c("PRJ_CD", "SAM", "MODE")],
-    fn028[, c("PRJ_CD", "MODE", "GR")],
-    by = c("PRJ_CD", "MODE"), all.x = TRUE
-  )
-
-  # add the effort conts to our project sam_gr:
-
-  prj_sam_gr <- merge(prj_sam_gr[, c("PRJ_CD", "SAM", "GR")],
-    eff_counts[, c("PRJ_CD", "SAM", "EFF")],
-    by = c("PRJ_CD", "SAM"), all.x = TRUE
-  )
-
-  prj_sam_gr <- merge(prj_sam_gr, gept_counts,
-    by = c("GR", "EFF"), all.x = TRUE
-  )
-
-  prj_sam_gr$PROCESS_TYPE <- ifelse(is.na(prj_sam_gr$PROCESS_TYPE) &
-                                      prj_sam_gr$EFF == 1, 1, prj_sam_gr$PROCESS_TYPE)
-  prj_sam_gr <- prj_sam_gr[, c("PRJ_CD", "SAM", "PROCESS_TYPE")]
-
-  fn121$PROCESS_TYPE <- NULL
-  fn121 <- merge(fn121, prj_sam_gr, by = c("PRJ_CD", "SAM"), all.x = TRUE)
-
-  return(fn121)
 }
 
 
@@ -623,12 +563,12 @@ get_nearshore_fn122 <- function(prj_cds, src_db) {
   sql <- " SELECT PRJ_CD, Trim(Str([ia122].[SAM])) AS SAM, EFF, EFFDST,
            GRDEP as GRDEP0,
            '' as GRDEP1,
-           GRTEM0, GRTEM1, 'False' AS WATERHAUL, '' AS COMMENT2
+           GRTEM0, GRTEM1, 'FALSE' AS WATERHAUL, '' AS COMMENT2
            FROM IA122
            WHERE PRJ_CD in (%s)
            ORDER BY PRJ_CD, Trim(Str([ia122].[SAM])), EFF;
           "
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -661,7 +601,7 @@ get_nearshore_fn123 <- function(prj_cds, src_db) {
            WHERE PRJ_CD in (%s)
            ORDER BY PRJ_CD, Trim(Str([ia123].[SAM])), EFF, Spc, GRP;
            "
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -671,40 +611,6 @@ get_nearshore_fn123 <- function(prj_cds, src_db) {
   dat <- fetch_sql(stmt, src_db)
   return(dat)
 }
-
-
-make_nearshore_fn012 <- function(fn011, default_protocol = "BSM") {
-  lake <- fn011$LAKE[1]
-  default_fn012 <- glfishr::get_FN012_Protocol(list(lake = lake, protocol = default_protocol))
-  drop <- c("LAKE", "PROTOCOL")
-  default_fn012$PRJ_CD <- NA
-  default_fn012 <- default_fn012[, !(names(default_fn012) %in% drop)]
-
-  fn012 <- default_fn012[FALSE, ]
-
-  for (i in 1:nrow(fn011)) {
-    project <- fn011[i, ]
-    tmp <- glfishr::get_FN012_Protocol(list(lake = project$LAKE, protocol = project$PROTOCOL))
-
-    if (length(tmp) == 0) {
-      msg <- sprintf("\t%s - Unable to find protocol for '%s' in Lake %s.
-                       \tUsing %s for FN012 values instead.\n",
-        project$PRJ_CD, project$PROTOCOL, project$LAKE, default_protocol
-        )
-      cat(msg)
-      tmp <- default_fn012
-    } else {
-      tmp <- tmp[, !(names(tmp) %in% drop)]
-    }
-    tmp$PRJ_CD <- project$PRJ_CD
-    fn012 <- rbind(fn012, tmp)
-  }
-
-  return(fn012)
-}
-
-
-
 
 
 
@@ -753,7 +659,7 @@ get_nearshore_fn125 <- function(prj_cds, src_db) {
       FROM IA125
       WHERE PRJ_CD in (%s)
       ORDER BY PRJ_CD, Trim(Str([ia125].[SAM])), EFF, Spc, GRP, FISH;"
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -792,7 +698,7 @@ get_nearshore_fn125_tags <- function(prj_cds, src_db) {
           AND TAGID Is Not Null
           And TAGID<>'0';"
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -820,7 +726,7 @@ get_nearshore_fn125_xtags <- function(prj_cds, src_db) {
           AND XTAGID Is Not Null
           And XTAGID<>'0';"
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -855,7 +761,7 @@ get_nearshore_fn125_lamprey <- function(prj_cds, src_db) {
           WHERE PRJ_CD in (%1$s) AND LAMIJC Is Not Null OR
           PRJ_CD in (%1$s) AND XLAM Is Not Null;"
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -919,7 +825,7 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
           WHERE IA126.PRJ_CD in (%1$s)
           "
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -928,7 +834,7 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
 
   dat <- fetch_sql(stmt, src_db)
 
-  dat <- dat[with(dat, order(PRJ_CD,SAM,EFF,SPC,GRP,FISH,FOOD)),]
+  dat <- dat[with(dat, order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, FOOD)), ]
   return(dat)
 }
 
@@ -948,7 +854,6 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
 ##'   assessment project
 ##' @author R. Adam Cottrill
 get_nearshore_fn125_ages <- function(prj_cds, src_db) {
-
   sql <- "select
          PRJ_CD,
          Trim(Str([IA125].[SAM])) as SAM,
@@ -958,7 +863,7 @@ get_nearshore_fn125_ages <- function(prj_cds, src_db) {
          FISH,
          125 as ageId,
          AGE as AGEA,
-         'True' as Preferred,
+         'TRUE' as Preferred,
          AGEMT,
          XAGEM,
          CONF,
@@ -987,7 +892,7 @@ get_nearshore_fn125_ages <- function(prj_cds, src_db) {
          FISH;
      "
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,
@@ -1022,7 +927,7 @@ get_nearshore_fn127 <- function(prj_cds, src_db) {
      FISH,
      IIf(IsNull([IA127].[ageid]),1,[IA127].[ageid]) AS AGEID,
      AGEA,
-     'False' AS Preferred,
+     'FALSE' AS Preferred,
      AGEMT,
      CONF,
      '' AS NCA,
@@ -1038,7 +943,7 @@ get_nearshore_fn127 <- function(prj_cds, src_db) {
       IIf(IsNull([IA127].[ageid]),1,[IA127].[ageid]);
      "
 
-  project_codes <-  paste(sapply(prj_cds, sQuote), collapse = ", ")
+  project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
     sql,

@@ -10,14 +10,11 @@
 ##' @return NULL
 ##' @author R. Adam Cottrill
 populate_readme <- function(trg_db, src_db) {
-
   readme_msg <- sprintf("Template populated from %s on %s", basename(src_db), Sys.time())
   README <- data.frame("README" = readme_msg)
   conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
   RODBC::sqlSave(conn, README, rownames = F, append = FALSE)
   RODBC::odbcClose(conn)
-
-
 }
 
 ##' Check for target and template databases.
@@ -65,7 +62,7 @@ check_db_setup <- function(trg_db, template_db, overwrite) {
 ##' @return TRUE if the file exists and has an accdb extension.
 ##' @author R. Adam Cottrill
 check_accdb <- function(src_db) {
-  if (!grepl("\\.accdb$",src_db)) {
+  if (!grepl("\\.accdb$", src_db)) {
     message <-
       sprintf(
         paste0(
@@ -90,7 +87,6 @@ check_accdb <- function(src_db) {
   }
 
   return(TRUE)
-
 }
 
 
@@ -112,12 +108,12 @@ check_accdb <- function(src_db) {
 ##' @return A dataframe containing the data returned by the sql
 ##'   statement.
 ##' @author R. Adam Cottrill
-fetch_sql <- function(sql, src_db, toupper=T){
+fetch_sql <- function(sql, src_db, toupper = T) {
   check_accdb(src_db)
-  DBConnection <- RODBC::odbcConnectAccess2007(src_db,uid = "", pwd = "")
-  dat <- RODBC::sqlQuery(DBConnection, sql, as.is=TRUE, stringsAsFactors=FALSE, na.strings = "")
+  DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
+  dat <- RODBC::sqlQuery(DBConnection, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
   RODBC::odbcClose(DBConnection)
-  if (toupper)names(dat) <- toupper(names(dat))
+  if (toupper) names(dat) <- toupper(names(dat))
   return(dat)
 }
 
@@ -136,17 +132,15 @@ fetch_sql <- function(sql, src_db, toupper=T){
 ##'   project code.
 ##' @author R. Adam Cottrill
 valid_prj_cd <- function(prj_cd) {
-
   if (grepl(", ", prj_cd)) {
     prj_cds <- gsub("'", "", strsplit(prj_cd, ", ")[[1]])
     for (item in prj_cds) {
       return(valid_prj_cd(item))
     }
   }
-# update the regex if you are using this after 2030!
+  # update the regex if you are using this after 2030!
   prj_cd_regex <- "^'?[A-Z0-9]{3}_[A-Z]{2}\\d{2}_[A-Z0-9]{3}'?$"
   return(grepl(prj_cd_regex, prj_cd))
-
 }
 
 
@@ -166,11 +160,11 @@ valid_prj_cd <- function(prj_cd) {
 ##'   containing prj_cd in place of the %s placeholder(s).
 ##' @author R. Adam Cottrill
 format_prj_cd_sql <- function(sql, prj_cd) {
-
-  if (valid_prj_cd(prj_cd)==FALSE) {
-
-    msg <- sprintf("the provided prj_cd (%s) does not appear to be a valid prj_cd!",
-      prj_cd)
+  if (valid_prj_cd(prj_cd) == FALSE) {
+    msg <- sprintf(
+      "the provided prj_cd (%s) does not appear to be a valid prj_cd!",
+      prj_cd
+    )
     stop(msg)
   }
   stmt <- sprintf(sql, prj_cd)
@@ -211,21 +205,22 @@ format_prj_cd_sql <- function(sql, prj_cd) {
 ##' @return status of the odbc connection.
 ##' @export
 ##' @author R. Adam Cottrill
-append_data <- function(dbase, trg_table, data, append=T, safer=T,
-                        toupper=T, check_names=T,
-                        verbose=F){
-  if (toupper)names(data) <- toupper(names(data))
+append_data <- function(dbase, trg_table, data, append = T, safer = T,
+                        toupper = T, check_names = T,
+                        verbose = F) {
+  if (toupper) names(data) <- toupper(names(data))
 
   check_accdb(dbase)
 
   field_check <- check_table_names(dbase, trg_table, data)
-  if(length(field_check)) stop("Please fix field differences before proceeding.")
+  if (length(field_check)) stop("Please fix field differences before proceeding.")
 
   conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "")
-  RODBC::sqlSave(conn, data, tablename = trg_table, rownames = F,
-          safer = safer, append = append, nastring = NULL, verbose = verbose)
+  RODBC::sqlSave(conn, data,
+    tablename = trg_table, rownames = F,
+    safer = safer, append = append, nastring = NULL, verbose = verbose
+  )
   return(RODBC::odbcClose(conn))
-
 }
 
 
@@ -240,11 +235,11 @@ append_data <- function(dbase, trg_table, data, append=T, safer=T,
 ##' @param table - the name of the table to query.
 ##' @return dataframe
 ##' @author R. Adam Cottrill
-get_trg_table_names <- function(trg_db, table){
+get_trg_table_names <- function(trg_db, table) {
   check_accdb(trg_db)
   DBConnection <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
   stmt <- sprintf("select * from [%s] where FALSE;", table)
-  dat <- RODBC::sqlQuery(DBConnection, stmt, as.is=TRUE, stringsAsFactors=FALSE, na.strings = "")
+  dat <- RODBC::sqlQuery(DBConnection, stmt, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
   RODBC::odbcClose(DBConnection)
   return(toupper(names(dat)))
 }
@@ -267,19 +262,23 @@ get_trg_table_names <- function(trg_db, table){
 ##'   compared against the field names of 'table'
 ##' @return vector
 ##' @author R. Adam Cottrill
-check_table_names <- function(trg_db, table, src_data){
+check_table_names <- function(trg_db, table, src_data) {
   trg_names <- get_trg_table_names(trg_db, table)
   missing <- setdiff(trg_names, names(src_data))
   extra <- setdiff(names(src_data), trg_names)
-  if(length(extra)) {
-    msg <- sprintf("The source data frame has extra fields: %s",
-      paste(extra,collapse = ', '))
-      warning(msg)
-    }
-  if(length(missing)) {
-    msg <- sprintf("The source data frame is missing fields: %s",
-      paste(missing, collapse = ', '))
-      warning(msg)
+  if (length(extra)) {
+    msg <- sprintf(
+      "The source data frame has extra fields: %s",
+      paste(extra, collapse = ", ")
+    )
+    warning(msg)
+  }
+  if (length(missing)) {
+    msg <- sprintf(
+      "The source data frame is missing fields: %s",
+      paste(missing, collapse = ", ")
+    )
+    warning(msg)
   }
   return(c(extra, missing))
 }
@@ -306,7 +305,7 @@ check_table_names <- function(trg_db, table, src_data){
 ##'
 ##' get_time(Sys.time())
 ##'
-get_time <- function(datetime){
+get_time <- function(datetime) {
   # extract time from date/time string
 
   time_regex <- ".*([0-2][0-9]:[0-5][0-9]:[0-5][0-9])$"
@@ -318,8 +317,9 @@ get_time <- function(datetime){
   )
 
   ifelse(!grepl(time_regex, datetime[!is.na(datetime)]),
-         stop(msg),
-         datetime[!is.na(datetime)])
+    stop(msg),
+    datetime[!is.na(datetime)]
+  )
   return(datetime)
 }
 
@@ -336,12 +336,11 @@ get_time <- function(datetime){
 ##' @param src_table - option table name to query PRJ_CD
 ##'   from. Defaults to 'FN011', but any table name from the source
 ##'   data can be used.
-##' @return - a dataframe containing all of the PRJ_CD values in the
+##' @return a dataframe containing all of the PRJ_CD values in the
 ##'   provided table.
 ##' @export
 ##' @author R. Adam Cottrill
-get_src_prj_cds <- function(src_db, src_table="FN011"){
-
+get_src_prj_cds <- function(src_db, src_table = "FN011") {
   check_accdb(src_db)
 
   stmt <- sprintf("select distinct [PRJ_CD] from [%s] order by [PRJ_CD];", src_table)
@@ -372,8 +371,8 @@ add_mode <- function(fn121, fn028) {
   foo <- merge(fn121, tmp, by = c(
     "PRJ_CD", "SAM", "GR", "GRUSE",
     "ORIENT"
-  ), all.x=TRUE)
-  return (foo[with(foo, order(PRJ_CD, SAM)),])
+  ), all.x = TRUE)
+  return(foo[with(foo, order(PRJ_CD, SAM)), ])
 }
 
 
@@ -394,10 +393,199 @@ update_FN122_waterhaul <- function(dbase) {
 ON (FN122.EFF = FN123.EFF)
 AND(FN122.SAM = FN123.SAM)
 AND(FN122.PRJ_CD = FN123.PRJ_CD)
-SET FN122.WATERHAUL = 'True'
+SET FN122.WATERHAUL = 'TRUE'
 WHERE (((FN123.PRJ_CD) Is Null));"
   check_accdb(dbase)
   conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "")
   RODBC::sqlQuery(conn, sql)
   return(RODBC::odbcClose(conn))
+}
+
+
+
+
+fn121_add_mode <- function(fn121, fn028) {
+  # populate the correct mode for each sam:
+  x121 <- fn121[, c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT")]
+  x028 <- fn028[, c("PRJ_CD", "GR", "GRUSE", "ORIENT", "MODE")]
+  tmp <- merge(x121, x028, by = c("PRJ_CD", "GR", "GRUSE", "ORIENT"))
+  fn121 <- merge(fn121, tmp, by = c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT"))
+  drop <- c("GR", "GRUSE", "ORIENT")
+  return(fn121[, !(names(fn121) %in% drop)])
+}
+
+
+
+##' Populate FN121 Process Type based on gear and FN122 records
+##'
+##' This function is used to populate the process type assocaited with
+##' each FN121 record by using the gear from the FN028 table, the
+##' number of child fn122 records and the known gear effort process
+##' types.
+##' @title Populate FN121 Process Type
+##' @param fn028 - fn028 table for the selected project(s)
+##' @param fn121 - fn121 table for the selected project(s)
+##' @param fn122 - fn122 table for the selected project(s)
+##' @param gear_effort_process_types datafame with gear, effort and
+##'   process types.
+##' @return fn121 dataframe with populated PROCESS_TYPE column
+##' @author R. Adam Cottrill
+fn121_populate_process_type <- function(fn028, fn121, fn122, gear_effort_process_types) {
+  eff_counts <- stats::aggregate(EFF ~ PRJ_CD + SAM, data = fn122, FUN = length)
+  gept_counts <- stats::aggregate(EFF ~ GR + PROCESS_TYPE,
+    data = gear_effort_process_types, FUN = length
+  )
+
+  prj_sam_gr <- merge(fn121[, c("PRJ_CD", "SAM", "MODE")],
+    fn028[, c("PRJ_CD", "MODE", "GR")],
+    by = c("PRJ_CD", "MODE"), all.x = TRUE
+  )
+
+  # add the effort conts to our project sam_gr:
+
+  prj_sam_gr <- merge(prj_sam_gr[, c("PRJ_CD", "SAM", "GR")],
+    eff_counts[, c("PRJ_CD", "SAM", "EFF")],
+    by = c("PRJ_CD", "SAM"), all.x = TRUE
+  )
+
+  prj_sam_gr <- merge(prj_sam_gr, gept_counts,
+    by = c("GR", "EFF"), all.x = TRUE
+  )
+
+  prj_sam_gr$PROCESS_TYPE <- ifelse(is.na(prj_sam_gr$PROCESS_TYPE) &
+    prj_sam_gr$EFF == 1, 1, prj_sam_gr$PROCESS_TYPE)
+  prj_sam_gr <- prj_sam_gr[, c("PRJ_CD", "SAM", "PROCESS_TYPE")]
+
+  fn121$PROCESS_TYPE <- NULL
+  fn121 <- merge(fn121, prj_sam_gr, by = c("PRJ_CD", "SAM"), all.x = TRUE)
+
+  return(fn121)
+}
+
+
+
+
+##' Populate the FN012 table for projects created from master databases
+##'
+##' Some data sources do not have a FN012 table. This funciton will
+##' created a FN012 table based on values in the FN011 table (LAKE and
+##' PROTOCOL), and will use the provided default if a matching
+##' protocol cannot be found.  This table is further refined based on
+##' the catch in each project.
+##' @title Make FN011 Table
+##' @param fn011 - data frame containing FN011 data. Must contain
+##'   PRJ_CD, LAKE and PROTOCOL
+##' @param default_protocol - the protocol to use if one matching the
+##'   specifed protol and lake cannot be found
+##' @return dataframe containing fn012 records for each project
+##'   reported in the FN011 table.
+##' @author R. Adam Cottrill
+make_fn012 <- function(fn011, default_protocol = "BSM") {
+  lake <- fn011$LAKE[1]
+  default_fn012 <- glfishr::get_FN012_Protocol(list(
+    lake = lake,
+    protocol = default_protocol
+  ))
+  drop <- c("LAKE", "PROTOCOL")
+  default_fn012$PRJ_CD <- NA
+  default_fn012 <- default_fn012[, !(names(default_fn012) %in% drop)]
+
+  fn012 <- default_fn012[FALSE, ]
+
+  for (i in 1:nrow(fn011)) {
+    project <- fn011[i, ]
+    tmp <- glfishr::get_FN012_Protocol(list(lake = project$LAKE, protocol = project$PROTOCOL))
+
+    if (length(tmp) == 0) {
+      msg <- sprintf(
+        "\t%s - Unable to find protocol for '%s' in Lake %s.
+                       \tUsing %s for FN012 values instead.\n",
+        project$PRJ_CD, project$PROTOCOL, project$LAKE, default_protocol
+      )
+      cat(msg)
+      tmp <- default_fn012
+    } else {
+      tmp <- tmp[, !(names(tmp) %in% drop)]
+    }
+    tmp$PRJ_CD <- project$PRJ_CD
+    fn012 <- rbind(fn012, tmp)
+  }
+
+  return(fn012)
+}
+
+
+##' compare data in same table in different databases.
+##'
+##' This function compares the data contained in the same table from
+##' two different databases.  It uses the R-package 'waldo' to print a
+##' report of where the differences occur.  If no defferences are
+##' found it reports "No Differences"
+##' @title Compare Database Tables
+##'
+##' @param dbX - path to the first accdb file.
+##' @param dbY - path to the second accdb file.
+##' @param tablename - the name of the table to extract the data from
+##'   in each table.
+##' @param x_arg - option label for dbX
+##' @param y_arg  - option label for dbY
+##' @return NULL
+##' @export
+##' @author R. Adam Cottrill
+compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
+                           y_arg = "old") {
+  check_accdb(dbX)
+  check_accdb(dbY)
+
+  dataX <- fetch_table_data(dbX, tablename)
+  dataY <- fetch_table_data(dbY, tablename)
+
+  # make sure the data frames are ordered the same, all columns, left to right:
+  dataX <- dataX[do.call(order, as.list(dataX)), ]
+  dataY <- dataY[do.call(order, as.list(dataY)), ]
+  row.names(dataX) <- NULL
+  row.names(dataY) <- NULL
+
+  waldo::compare(dataX, dataY, x_arg = x_arg, y_arg = y_arg)
+}
+
+
+##' Return a dataframe with table names in target accdb
+##'
+##' This function will fetch a list of table names in the target
+##' database and return them in a data frame.
+##' @title List accdb table names
+##' @param trg_db - path to the target accdb file
+##' @return dataframe containsing table names in the target database.
+##' @export
+##' @author R. Adam Cottrill
+get_tablenames <- function(trg_db) {
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
+  tables <- RODBC::sqlTables(conn)
+  RODBC::odbcClose(conn)
+  tables <- tables$TABLE_NAME[tables$TABLE_TYPE == "TABLE"]
+  return(tables)
+}
+
+##' Fetch all of the data from the target table.
+##'
+##' This function fetchs all of the data from the specified table in
+##' the target databse. I simpley executes a select * statement and
+##' retuns the result as a dataframe.
+##' @title Fetch all data from an accdb table.
+##' @param src_db - the path the accdb database
+##' @param tablename - the name of the table to extract the data from.
+##' @param toupper - should the names be coerced to uppercase (TRUE by
+##'   default)
+##' @return dataframe containing all of the data in the specified
+##'   table.
+##' @author R. Adam Cottrill
+fetch_table_data <- function(src_db, tablename, toupper = T) {
+  sql <- sprintf("select * from [%s];", tablename)
+
+  DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
+  dat <- RODBC::sqlQuery(DBConnection, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
+  RODBC::odbcClose(DBConnection)
+  if (toupper) names(dat) <- toupper(names(dat))
+  return(dat)
 }
