@@ -20,9 +20,14 @@ templates "Great_Lakes_Sport_Creel_Template_2.accdb" and
 You can install the development version of glisDataTools like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
-# do to....
+devtools::install_github("AdamCottrill/glisDataTools")
+
 ```
+
+But most users should probably use the pre-compile binary available on
+the GLIS sharepoint site (it will be of the form:
+"glisDataTools_yyyy.mm.dd.zip").  If are unable to find a recent
+version, contact the package author or one of the GLIS administrators.
 
 ## Creesys 4.1 to GLIS Template
 
