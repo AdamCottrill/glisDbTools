@@ -79,7 +79,7 @@ check_accdb <- function(src_db) {
       sprintf(
         paste0(
           "Could not find the database '%s'. ",
-          "Make sure it exists and try again"
+          "Make sure it exists and try again."
         ),
         src_db
       )
@@ -245,7 +245,7 @@ get_trg_table_names <- function(trg_db, table) {
 }
 
 
-##' Compare dataframe names to target table
+##' Compare dataframe names to field names in the target table
 ##'
 ##' A function to compare the names of the provided dataframe against
 ##' the names of a specifed table in a target database.  If there are
@@ -363,16 +363,17 @@ get_src_prj_cds <- function(src_db, src_table = "FN011") {
 ##' @param fn028 - dataframe representing available modes (set methods)
 ##' @return fn121 dataframe with populated mode field added
 ##' @author R. Adam Cottrill
-add_mode <- function(fn121, fn028) {
+fn121_add_mode <- function(fn121, fn028) {
   # populate the correct mode for each sam:
-  x121 <- subset(fn121, select = c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT"))
-  x028 <- subset(fn028, select = c("PRJ_CD", "GR", "GRUSE", "ORIENT", "MODE"))
+  x121 <- fn121[, c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT")]
+  x028 <- fn028[, c("PRJ_CD", "GR", "GRUSE", "ORIENT", "MODE")]
   tmp <- merge(x121, x028, by = c("PRJ_CD", "GR", "GRUSE", "ORIENT"))
-  foo <- merge(fn121, tmp, by = c(
-    "PRJ_CD", "SAM", "GR", "GRUSE",
-    "ORIENT"
-  ), all.x = TRUE)
-  return(foo[with(foo, order(PRJ_CD, SAM)), ])
+  fn121 <- merge(fn121, tmp,
+    by = c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT"),
+    all.x = TRUE
+  )
+  drop <- c("GR", "GRUSE", "ORIENT")
+  return(fn121[, !(names(fn121) %in% drop)])
 }
 
 
@@ -399,19 +400,6 @@ WHERE (((FN123.PRJ_CD) Is Null));"
   conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "")
   RODBC::sqlQuery(conn, sql)
   return(RODBC::odbcClose(conn))
-}
-
-
-
-
-fn121_add_mode <- function(fn121, fn028) {
-  # populate the correct mode for each sam:
-  x121 <- fn121[, c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT")]
-  x028 <- fn028[, c("PRJ_CD", "GR", "GRUSE", "ORIENT", "MODE")]
-  tmp <- merge(x121, x028, by = c("PRJ_CD", "GR", "GRUSE", "ORIENT"))
-  fn121 <- merge(fn121, tmp, by = c("PRJ_CD", "SAM", "GR", "GRUSE", "ORIENT"))
-  drop <- c("GR", "GRUSE", "ORIENT")
-  return(fn121[, !(names(fn121) %in% drop)])
 }
 
 
@@ -515,11 +503,11 @@ make_fn012 <- function(fn011, default_protocol = "BSM") {
 }
 
 
-##' compare data in same table in different databases.
+##' Compare data in same table in different databases.
 ##'
 ##' This function compares the data contained in the same table from
 ##' two different databases.  It uses the R-package 'waldo' to print a
-##' report of where the differences occur.  If no defferences are
+##' report of where the differences occur.  If no differences are
 ##' found it reports "No Differences"
 ##' @title Compare Database Tables
 ##'
@@ -533,7 +521,7 @@ make_fn012 <- function(fn011, default_protocol = "BSM") {
 ##' @export
 ##' @author R. Adam Cottrill
 compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
-                           y_arg = "old") {
+                           y_arg = "old_master") {
   check_accdb(dbX)
   check_accdb(dbY)
 
@@ -579,6 +567,7 @@ compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
 ##' @export
 ##' @author R. Adam Cottrill
 get_tablenames <- function(trg_db) {
+  check_accdb(trg_db)
   conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
   tables <- RODBC::sqlTables(conn)
   RODBC::odbcClose(conn)
@@ -588,9 +577,9 @@ get_tablenames <- function(trg_db) {
 
 ##' Fetch all of the data from the target table.
 ##'
-##' This function fetchs all of the data from the specified table in
-##' the target databse. I simpley executes a select * statement and
-##' retuns the result as a dataframe.
+##' This function fetches all of the data from the specified table in
+##' the target database. It simply executes a select * statement and
+##' returns the result as a data frame.
 ##' @title Fetch all data from an accdb table.
 ##' @param src_db - the path the accdb database
 ##' @param tablename - the name of the table to extract the data from.
@@ -600,8 +589,8 @@ get_tablenames <- function(trg_db) {
 ##'   table.
 ##' @author R. Adam Cottrill
 fetch_table_data <- function(src_db, tablename, toupper = T) {
+  check_accdb(src_db)
   sql <- sprintf("select * from [%s];", tablename)
-
   DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
   dat <- RODBC::sqlQuery(DBConnection, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
   RODBC::odbcClose(DBConnection)

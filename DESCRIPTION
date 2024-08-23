@@ -1,6 +1,6 @@
 Package: glisDbTools
-Title: A collection of utility functions for working with GLIS upload templates.
-Version: 2024.08.16
+Title: A collection of utility functions for working with GLIS upload templates
+Version: 2024.08.23
 Authors@R:
     person("Adam", "Cottrill", , "adam.cottrill@ontario.ca", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -13,3 +13,8 @@ Imports:
     glfishr,
     RODBC,
     waldo
+Suggests:
+    mockr,
+    mockery,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

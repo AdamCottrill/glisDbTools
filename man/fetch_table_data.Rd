@@ -28,9 +28,9 @@ table.
 Fetch all of the data from the target table.
 }
 \details{
-This function fetchs all of the data from the specified table in
-the target databse. I simpley executes a select * statement and
-retuns the result as a dataframe.
+This function fetches all of the data from the specified table in
+the target database. It simply executes a select * statement and
+returns the result as a data frame.
 }
 \author{
 R. Adam Cottrill

@@ -4,7 +4,7 @@
 \alias{compare_tables}
 \title{Compare Database Tables}
 \usage{
-compare_tables(dbX, dbY, tablename, x_arg = "glis", y_arg = "old")
+compare_tables(dbX, dbY, tablename, x_arg = "glis", y_arg = "old_master")
 }
 \arguments{
 \item{dbX}{\itemize{
@@ -29,12 +29,12 @@ in each table.
 }}
 }
 \description{
-compare data in same table in different databases.
+Compare data in same table in different databases.
 }
 \details{
 This function compares the data contained in the same table from
 two different databases.  It uses the R-package 'waldo' to print a
-report of where the differences occur.  If no defferences are
+report of where the differences occur.  If no differences are
 found it reports "No Differences"
 }
 \author{

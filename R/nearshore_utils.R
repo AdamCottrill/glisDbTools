@@ -25,7 +25,7 @@
 ##' @export
 ##' @return NULL
 ##' @author R. Adam Cottrill
-flnearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, lake = "HU", verbose = FALSE, overwrite = FALSE) {
+nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, lake = "HU", verbose = FALSE, overwrite = FALSE) {
   # TODO:
   process_type <- 1
 

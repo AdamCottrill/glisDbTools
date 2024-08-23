@@ -25,7 +25,7 @@ compared against the field names of 'table'
 vector
 }
 \description{
-Compare dataframe names to target table
+Compare dataframe names to field names in the target table
 }
 \details{
 A function to compare the names of the provided dataframe against
