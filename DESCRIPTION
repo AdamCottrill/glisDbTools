@@ -1,5 +1,5 @@
-Package: glisDataTools
-Title: Master DB to upload template data mapping utilities
+Package: glisDbTools
+Title: A collection of utility functions for working with GLIS upload templates.
 Version: 2024.08.16
 Authors@R:
     person("Adam", "Cottrill", , "adam.cottrill@ontario.ca", role = c("aut", "cre"),

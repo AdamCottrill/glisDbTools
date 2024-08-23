@@ -1,7 +1,7 @@
 
-# glisDataTools
+# glisDbTools
 
-The glisDataTools packages is intended to provide some data
+The glisDbTools packages is intended to provide some data
 manipulation tools for use with GLIS, the glfishr package, and the
 upload templates.  Specifically, it provides mappers to the current
 GLIS data upload templates for projects in Creesys 4.1 files, and the
@@ -11,33 +11,33 @@ any differences if any are found.  For the most part, these tools are
 intended to facilate the migration of data from historical data
 repositories to GLIS.
 
-NOTE: The functions in glisDataTools currently work with glis upload
+NOTE: The functions in glisDbTools currently work with glis upload
 templates "Great_Lakes_Sport_Creel_Template_2.accdb" and
 "Great_Lakes_Assessment_Template_5.accdb".
 
 ## Installation
 
-You can install the development version of glisDataTools like so:
+You can install the development version of glisDbTools like so:
 
 ``` r
-devtools::install_github("AdamCottrill/glisDataTools")
+devtools::install_github("AdamCottrill/glisDbTools")
 
 ```
 
 But most users should probably use the pre-compile binary available on
 the GLIS sharepoint site (it will be of the form:
-"glisDataTools_yyyy.mm.dd.zip").  If are unable to find a recent
+"glisDbTools_yyyy.mm.dd.zip").  If are unable to find a recent
 version, contact the package author or one of the GLIS administrators.
 
 ## Creesys 4.1 to GLIS Template
 
-The glisDataTools package includes a function that will connect to any
+The glisDbTools package includes a function that will connect to any
 Creesy 4.1 access database and populate a GLIS assessment template
 for each of the provided project code(s).
 
 
 ``` r
-library(glisDataTools)
+library(glisDbTools)
 ## basic example code
 
 # the path to the copy of the creesys master on your computer. The
@@ -66,12 +66,12 @@ creesys_to_template(prj_cds, src_db, template_db, overwrite=TRUE)
 
 ## Nearshore Master to GLIS Template
 
-The glisDataTools package includes a function that will connect to the
+The glisDbTools package includes a function that will connect to the
 Lake Huron Nearshore master (or more likely a copy of it) and populate
 a GLIS assessment template for each of the provided project codes.
 
 ``` r
-library(glisDataTools)
+library(glisDbTools)
 ## basic example code
 
 # the path to the copy of the nearshore master on your computer:
@@ -98,7 +98,7 @@ nearshore_to_template(prj_cds, src_db, template_db, overwrite=TRUE)
 
 One of the most basic challenges that we will face as we migrate from
 historical dataset to GLIS is comparing what exactly is in the
-historical dataset with what is in GLIS.  the glisDataTools package
+historical dataset with what is in GLIS.  the glisDbTools package
 contains some utlities that help with this task.  The primary function
 for is compare_tables, which will accept the path to accdb file
 populated firectly form GLIS, a path to a second accdb file created
@@ -111,7 +111,7 @@ data in GLIS has already been updated and cleaned.
 
 ``` r
 
-library(glisDataTools)
+library(glisDbTools)
 
 # the complete path a template populated from glis using
 # glfishr::populate_template()
@@ -119,7 +119,7 @@ glis_db <- "~/LHA_IA22_821_glis.accdb"
 
 # complete path to a template with the data from the same project
 # created from the nearshore master (using
-# glisDataTools::nearshore_to_template()):
+# glisDbTools::nearshore_to_template()):
 nearshore_db <- "~/LHA_IA22_821_nearshore.accdb"
 
 # we can get a list of tables in each template:
