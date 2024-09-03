@@ -267,7 +267,7 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
 ##' @return - dataframe containing the FN011 data for the specified
 ##'   assessment project
 ##' @author R. Adam Cottrill
-get_nearshore_fn011 <- function(prj_cds, src_db) {
+ get_nearshore_fn011 <- function(prj_cds, src_db) {
   # a function replace the Get_FN011 query from the mapper database.
 
   sql <- "SELECT Year, PRJ_CD, PRJ_NM, PRJ_LDR, PRJ_DATE0, PRJ_DATE1,

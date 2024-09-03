@@ -20,7 +20,7 @@ populate_readme <- function(trg_db, src_db) {
 ##' Check for target and template databases.
 ##'
 ##' A helper funciton used by the data mappers to verify that the
-##' target and template dateabase exists in the expected locations.
+##' target and template datebase exists in the expected locations.
 ##' @title Check for target and template databases.
 ##' @param trg_db - the path to the target database.
 ##' @param template_db - the path to the template database.
@@ -59,9 +59,11 @@ check_db_setup <- function(trg_db, template_db, overwrite) {
 ##' @title Verify *.accdb file
 ##' @param src_db path to an accdb file - it must end with accdb and
 ##'   actually exist on the filesystem.
+##' @param exists - check if the file actually exists. If this value
+##'   is true and the file does not exist, an error will be thrown.
 ##' @return TRUE if the file exists and has an accdb extension.
 ##' @author R. Adam Cottrill
-check_accdb <- function(src_db) {
+check_accdb <- function(src_db, exists = TRUE) {
   if (!grepl("\\.accdb$", src_db)) {
     message <-
       sprintf(
@@ -73,8 +75,8 @@ check_accdb <- function(src_db) {
       )
     stop(message)
   }
-
-  if (!file.exists(src_db)) {
+  # if exists is TRUE, verify that the files accually exists too:
+  if (exists && !file.exists(src_db)) {
     message <-
       sprintf(
         paste0(
@@ -105,16 +107,23 @@ check_accdb <- function(src_db) {
 ##'   database.
 ##' @param toupper - Boolean. default=TRUE, should names of returned
 ##'   dataframe be converted to uppercase before returning?
+##' @param payload - Boolean.  Is this sql statement expected to return data?
 ##' @return A dataframe containing the data returned by the sql
 ##'   statement.
 ##' @author R. Adam Cottrill
-fetch_sql <- function(sql, src_db, toupper = T) {
+fetch_sql <- function(sql, src_db, toupper = TRUE, payload = TRUE) {
   check_accdb(src_db)
-  DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
-  dat <- RODBC::sqlQuery(DBConnection, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
-  RODBC::odbcClose(DBConnection)
-  if (toupper) names(dat) <- toupper(names(dat))
-  return(dat)
+  if (payload) {
+    DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
+    dat <- RODBC::sqlQuery(DBConnection, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
+    RODBC::odbcClose(DBConnection)
+    if (toupper) names(dat) <- toupper(names(dat))
+    return(dat)
+  } else {
+    DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
+    RODBC::sqlQuery(DBConnection, sql)
+    RODBC::odbcClose(DBConnection)
+  }
 }
 
 ##' Validate a project code
@@ -550,6 +559,7 @@ compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
   # make sure the data frames are ordered the same, all columns, left to right:
   dataX <- dataX[do.call(order, as.list(dataX)), ]
   dataY <- dataY[do.call(order, as.list(dataY)), ]
+  # remove rownames so irrelevant diffrences are not flagged
   row.names(dataX) <- NULL
   row.names(dataY) <- NULL
 
@@ -585,15 +595,316 @@ get_tablenames <- function(trg_db) {
 ##' @param tablename - the name of the table to extract the data from.
 ##' @param toupper - should the names be coerced to uppercase (TRUE by
 ##'   default)
+##' @param as.is - passed to RODBC, should returned values be returned
+##'   "as-is", or converted to their R-equivalents?
+##' @param stringsAsFactors  - passed to RODBC, should string values be returned
+##'   as character vectors or converted factors?
+##' @param na.strings - passed to RODBC - default placeholder or empty or missing strings.
 ##' @return dataframe containing all of the data in the specified
 ##'   table.
 ##' @author R. Adam Cottrill
-fetch_table_data <- function(src_db, tablename, toupper = T) {
+fetch_table_data <- function(src_db, tablename, toupper = T,
+                             as.is = TRUE, stringsAsFactors = FALSE, na.strings = "") {
   check_accdb(src_db)
   sql <- sprintf("select * from [%s];", tablename)
   DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
-  dat <- RODBC::sqlQuery(DBConnection, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
+  dat <- RODBC::sqlQuery(DBConnection, sql,
+    as.is = as.is,
+    stringsAsFactors = stringsAsFactors,
+    na.strings = na.strings
+  )
   RODBC::odbcClose(DBConnection)
   if (toupper) names(dat) <- toupper(names(dat))
   return(dat)
+}
+
+##' Recode project code in template database
+##'
+##' This funciton will change the project code in a populated from one
+##' project code to another.  The referential integrity that is build
+##' into the GLIS template databases make it impossible to just change
+##' projects in an adhoc fashion.
+##' @title Re-code PRJ_CD in a Glis template
+##' @param src_db - path to the populated glis template to be changed
+##' @param orig_prj_cd - the original project code that needs to be
+##'   changed
+##' @param new_prj_cd - the new project code that will be used to
+##'   replace the original project code
+##' @param trg_name - the name of the new accdb with the re-coded
+##'   project code.
+##' @param overwrite - overwrite the target database (if it exists)?
+##' @return NULL
+##' @export
+##' @author R. Adam Cottrill
+recode_prj_cd <- function(src_db, orig_prj_cd, new_prj_cd, trg_name = NULL, overwrite = FALSE) {
+  # check the src_db
+  check_accdb(src_db)
+  # validate the project codes
+  valid_prj_cd(orig_prj_cd)
+  valid_prj_cd(new_prj_cd)
+
+  if (orig_prj_cd == new_prj_cd) {
+    msg <- sprintf(
+      "The new project code (%s) cannot be same as the orig project code %s./n",
+      new_prj_cd, orig_prj_cd
+    )
+    stop(msg)
+  }
+
+
+  trg_name <- build_trg_name(src_db, orig_prj_cd, new_prj_cd, trg_name)
+
+  if (file.exists(trg_name) && !overwrite) {
+    message_a <- sprintf("The target database: '%s' already exists.", trg_name)
+    message_b <- "Please provide a different target or set overwrite=TRUE."
+    stop(paste(message_a, message_b, sep = "\n"))
+  } else {
+    file.copy(src_db, trg_name, overwrite = overwrite)
+  }
+
+  tablenames <- get_tablenames(trg_name)
+
+  # clear out the old data
+  cat("Clearing data from:\n")
+  for (i in length(tablenames):1) {
+    table <- tablenames[i]
+    payload <- clear_table_data(trg_name, table)
+    cat(sprintf("\t%s\n", table))
+  }
+
+  skip <- c("")
+
+  time_fields <- c("EFFTM0_GE", "EFFTM0_LT", "EFFTM0", "EFFTM1")
+
+  cat("Fetching and inserting data into:\n")
+  # Get the new data
+  for (table in tablenames) {
+    if (!(table %in% skip)) {
+      payload <- fetch_table_data(src_db, table, as.is = F)
+      if ("PRJ_CD" %in% names(payload)) {
+        payload$PRJ_CD[payload$PRJ_CD == orig_prj_cd] <- new_prj_cd
+      }
+
+      # apply get_time to each column in payload that is in field_fields
+      payload[, names(payload) %in% time_fields] <- lapply(payload[, names(payload) %in% time_fields], get_time)
+
+      cat(sprintf("\t%s: %s\n", table, nrow(payload)))
+      if (nrow(payload)) {
+        append_data(trg_name, table, payload)
+      }
+    }
+  }
+}
+
+
+##' Delete the all of data from target table
+##'
+##' This function exectutes a query on the target table that will
+##' delete all of the data in the provided table of the target
+##' database. No warning or confirmation is currently implemented.
+##' @title Delete Table Data
+##' @param db path the the target accdb file
+##' @param table_name The name of the table in the target database to
+##'   clear
+##' @param prj_cds a character vector of project codes to remove from
+##'   the target table (used to 'unmerge' databases)
+##' @return NULL
+##' @author R. Adam Cottrill
+clear_table_data <- function(db, table_name, prj_cds = NULL) {
+  if (is.null(prj_cds)) {
+    sql <- sprintf("Delete * from [%s];", table_name)
+  } else {
+    project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
+    sql <- sprintf(
+      "Delete * from [%s] where [PRJ_CD] in (%s);",
+      table_name, project_codes
+    )
+  }
+
+  payload <- fetch_sql(sql, db, payload = FALSE)
+  return(payload)
+}
+
+
+
+##' Build the name of target database
+##'
+##' This funciton attempt to build the name of the target database
+##' from the provided arguments. A helper function that used by
+##' several other funcitons in glisDbTools to isolate re-name logic in
+##' a testable form. This funciton is not intented to be used directly
+##' by most users.  If old project code appears in src_name it is
+##' replaced with the new project code, otherwise the file is the new
+##' project code followed by the accdb extension.  The returned file
+##' names contains the complete path, using the directory of the src
+##' db.
+##' @title Build name of target database
+##' @param src_db - the path to the source database
+##' @param orig_prj_cd - the old project in the source database
+##' @param new_prj_cd - the new project code that will be used to
+##'   replace the original
+##' @param trg_name - the (optional) name to be used for the target
+##'   database. An 'accdb' extension is added if it is not included.
+##' @return a string representing the path to the target database.
+##' @author R. Adam Cottrill
+build_trg_name <- function(src_db, orig_prj_cd, new_prj_cd, trg_name = NULL) {
+  if (is.null(trg_name)) {
+    fname <- basename(src_db)
+    if (grepl(orig_prj_cd, src_db)) {
+      trg_name <- gsub(orig_prj_cd, new_prj_cd, fname)
+    } else {
+      trg_name <- sprintf("%s.accdb", new_prj_cd)
+    }
+  } else {
+    if (!grepl("\\.accdb$", trg_name)) trg_name <- paste0(trg_name, ".accdb")
+  }
+
+  trg_name <- gsub("/", "\\", trg_name)
+  suppressWarnings(
+    if (trg_name != normalizePath(trg_name)) {
+      trg_name <- normalizePath(file.path(dirname(src_db), trg_name))
+    }
+  )
+  return(trg_name)
+}
+
+
+
+##' Copy and Rename a Template Database
+##'
+##' A convience function that can be used to copy and rename a
+##' populated template database.  An error will be thrown if the
+##' filenames do not end with accdb, or the original db does not
+##' exists.  If overwrite is TRUE, the target data base will the
+##' overwritten if it exists.
+##' @title Copy and Rename a Template Database
+##' @param old_name - character string representing the path to the
+##'   original database. It must exist, and must end in '*.accdb'.
+##' @param new_name - character string representing the path to the
+##'   new database. The path must end in '*.accdb'.
+##' @param overwrite - boolean - if the new_name already exists,
+##'   should it be overwritten? Defaults to FALSE.
+##' @return NULL
+##' @author R. Adam Cottrill
+copy_template <- function(old_name, new_name, overwrite = FALSE) {
+  check_accdb(old_name)
+  check_accdb(new_name, FALSE)
+
+  if (file.exists(new_name) && !overwrite) {
+    message_a <- sprintf("The trg_db database: '%s' already exists.", new_name)
+    message_b <- "Please provide a different file name or set overwrite=TRUE."
+    stop(paste(message_a, message_b, sep = "\n"))
+  } else {
+    file.copy(old_name, new_name, overwrite = overwrite)
+  }
+}
+
+
+##' Merge Template Databases
+##'
+##' This function will merge one template databaes into another.  This
+##' function simply attempts to append all of the data in the source
+##' database with data in the target. No attemp is made by this
+##' function to satisify contstraints imposed at the database level.
+##' If erros are encountered, the function unmerge_templates() can be
+##' used to removed data associated with the source db.
+##'
+##' @title Merge data from one template database based into another
+##' @param dbX - path to the target database that will be updated
+##' @param dbY - path the source database with data that will be inserted into the target.##'
+##' @return NULL
+##' @author R. Adam Cottrill
+merge_templates <- function(dbX, dbY) {
+  # y will be inserted into X
+  check_accdb(dbX)
+  check_accdb(dbY)
+
+  # check table names - if the table isn't in our data base we need to
+  # stop and let the user know:
+  tablesx <- get_tablenames(dbX)
+  tablesy <- get_tablenames(dbY)
+
+  append <- intersect(tablesx, tablesy)
+  insert <- setdiff(tablesx, tablesy)
+
+  time_fields <- c("EFFTM0_GE", "EFFTM0_LT", "EFFTM0", "EFFTM1")
+
+  # for each table in append, fetch the data from Y and append it to X
+  skip <- c("_version")
+  append <- append[!(append %in% skip)]
+  insert <- insert[!(insert %in% skip)]
+
+  if (length(append)) {
+    cat("Appending data from:\n")
+    for (table in append) {
+      payload <- fetch_table_data(dbY, table, as.is = F)
+      cat(sprintf("\t%s: %s\n", table, nrow(payload)))
+
+      if (nrow(payload)) {
+        # apply get_time to each column in payload that is in field_fields
+        payload[, names(payload) %in% time_fields] <- lapply(payload[, names(payload) %in% time_fields], get_time)
+        append_data(dbX, table, payload)
+      }
+    }
+  }
+
+  if (length(insert)) {
+    cat("Inserting data from:\n")
+    for (table in insert) {
+      payload <- fetch_table_data(dbY, table, as.is = F)
+      cat(sprintf("\t%s: %s\n", table, nrow(payload)))
+      if (nrow(payload)) {
+        # apply get_time to each column in payload that is in field_fields
+        payload[, names(payload) %in% time_fields] <- lapply(payload[, names(payload) %in% time_fields], get_time)
+        append_data(dbX, table, payload, append = FALSE)
+      }
+    }
+  }
+
+  cat(sprintf("Done. All data from '%s' has been inserted into '%s'\n", dbY, dbX))
+}
+
+##' Unmerge Template Databases
+##'
+##' This function is the complicment to merge_template and will remove
+##' all of the data from one template based on the project codes found
+##' in another. The most common use case for this function is backing
+##' out changes that were created by merge_templates when an error
+##' occurs.
+##'
+##' @title Delete data from one database based on another
+##' @param dbX - path to the target database that will be updated
+##' @param dbY - path the source database with the project codes that
+##'   will be removed from dbX.  It must have an FN011 table with
+##'   field PRJ_CD.
+##' @return NULL
+##' @author R. Adam Cottrill
+unmerge_templates <- function(dbX, dbY) {
+  # y will be revoved from X based on project code
+  check_accdb(dbX)
+  check_accdb(dbY)
+
+  # check table names - if the table isn't in our data base we need to
+  # stop and let the user know:
+  tablenames <- get_tablenames(dbX)
+
+  # get the list of project codes from our source db:
+  sql <- "select distinct [PRJ_CD] from [FN011]"
+  prj_cds <- fetch_sql(sql, dbY)
+
+  msg <- sprintf("Data from the following projects will be removed from '%s':\n", dbX)
+  cat(msg)
+  for (prj_cd in prj_cds) {
+    cat(sprintf("\t%s\n", prj_cd))
+  }
+
+  # clear out the old data
+  cat("Clearing data from:\n")
+  for (i in length(tablenames):1) {
+    table <- tablenames[i]
+    payload <- clear_table_data(dbX, table, prj_cds)
+    cat(sprintf("\t%s\n", table))
+  }
+
+  cat(sprintf("Done. All data from '%s' has been revoved from '%s'\n", dbY, dbX))
 }

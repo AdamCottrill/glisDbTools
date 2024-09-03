@@ -4,11 +4,16 @@
 \alias{check_accdb}
 \title{Verify *.accdb file}
 \usage{
-check_accdb(src_db)
+check_accdb(src_db, exists = TRUE)
 }
 \arguments{
 \item{src_db}{path to an accdb file - it must end with accdb and
 actually exist on the filesystem.}
+
+\item{exists}{\itemize{
+\item check if the file actually exists. If this value
+is true and the file does not exist, an error will be thrown.
+}}
 }
 \value{
 TRUE if the file exists and has an accdb extension.

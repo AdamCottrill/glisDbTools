@@ -25,7 +25,7 @@ Check for target and template databases.
 }
 \details{
 A helper funciton used by the data mappers to verify that the
-target and template dateabase exists in the expected locations.
+target and template datebase exists in the expected locations.
 }
 \author{
 R. Adam Cottrill

@@ -4,7 +4,14 @@
 \alias{fetch_table_data}
 \title{Fetch all data from an accdb table.}
 \usage{
-fetch_table_data(src_db, tablename, toupper = T)
+fetch_table_data(
+  src_db,
+  tablename,
+  toupper = T,
+  as.is = TRUE,
+  stringsAsFactors = FALSE,
+  na.strings = ""
+)
 }
 \arguments{
 \item{src_db}{\itemize{
@@ -18,6 +25,20 @@ fetch_table_data(src_db, tablename, toupper = T)
 \item{toupper}{\itemize{
 \item should the names be coerced to uppercase (TRUE by
 default)
+}}
+
+\item{as.is}{\itemize{
+\item passed to RODBC, should returned values be returned
+"as-is", or converted to their R-equivalents?
+}}
+
+\item{stringsAsFactors}{\itemize{
+\item passed to RODBC, should string values be returned
+as character vectors or converted factors?
+}}
+
+\item{na.strings}{\itemize{
+\item passed to RODBC - default placeholder or empty or missing strings.
 }}
 }
 \value{

@@ -4,7 +4,7 @@
 \alias{fetch_sql}
 \title{Fetch data from src database.}
 \usage{
-fetch_sql(sql, src_db, toupper = T)
+fetch_sql(sql, src_db, toupper = TRUE, payload = TRUE)
 }
 \arguments{
 \item{sql}{\itemize{
@@ -19,6 +19,10 @@ database.
 \item{toupper}{\itemize{
 \item Boolean. default=TRUE, should names of returned
 dataframe be converted to uppercase before returning?
+}}
+
+\item{payload}{\itemize{
+\item Boolean.  Is this sql statement expected to return data?
 }}
 }
 \value{
