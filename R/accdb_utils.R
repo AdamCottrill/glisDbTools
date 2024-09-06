@@ -12,7 +12,7 @@
 populate_readme <- function(trg_db, src_db) {
   readme_msg <- sprintf("Template populated from %s on %s", basename(src_db), Sys.time())
   README <- data.frame("README" = readme_msg)
-  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
   RODBC::sqlSave(conn, README, rownames = F, append = FALSE)
   RODBC::odbcClose(conn)
 }
@@ -98,31 +98,26 @@ check_accdb <- function(src_db, exists = TRUE) {
 ##'
 ##' This funciton is a wrapper around the RODBC funct sqlQuery with
 ##' default arguments that will prevent R from converting strings to
-##' factors and/or dropping leading zeros. The option toupper ensures
-##' the names of the returned dataframe are in upper case which
-##' matches FN-2 naming convension.
+##' factors and/or dropping leading zeros.
 ##' @title Fetch data from src database.
 ##' @param sql - the string to be exectuted.
 ##' @param src_db - a string representing the path to the src
 ##'   database.
-##' @param toupper - Boolean. default=TRUE, should names of returned
-##'   dataframe be converted to uppercase before returning?
 ##' @param payload - Boolean.  Is this sql statement expected to return data?
 ##' @return A dataframe containing the data returned by the sql
 ##'   statement.
 ##' @author R. Adam Cottrill
-fetch_sql <- function(sql, src_db, toupper = TRUE, payload = TRUE) {
+fetch_sql <- function(sql, src_db,  payload = TRUE) {
   check_accdb(src_db)
   if (payload) {
-    DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
-    dat <- RODBC::sqlQuery(DBConnection, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
-    RODBC::odbcClose(DBConnection)
-    if (toupper) names(dat) <- toupper(names(dat))
+    conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+    dat <- RODBC::sqlQuery(conn, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
+    RODBC::odbcClose(conn)
     return(dat)
   } else {
-    DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
-    RODBC::sqlQuery(DBConnection, sql)
-    RODBC::odbcClose(DBConnection)
+    conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+    RODBC::sqlQuery(conn, sql)
+    RODBC::odbcClose(conn)
   }
 }
 
@@ -203,9 +198,6 @@ format_prj_cd_sql <- function(sql, prj_cd) {
 ##'   (TRUE) or overwrite (FALSE) an existing table
 ##' @param safer - passed to sqlSave() - only appends are allowed if
 ##'   safer=TRUE
-##' @param toupper - should the names of tables be converted to
-##'   uppercase before being checked?  Ensures that check_names is
-##'   case-insentive.
 ##' @param check_names - boolean - should the names of the target
 ##'   table be compared to the the names of the provided dataframe
 ##'   before attempting to insert the rows in the database?
@@ -215,19 +207,18 @@ format_prj_cd_sql <- function(sql, prj_cd) {
 ##' @export
 ##' @author R. Adam Cottrill
 append_data <- function(dbase, trg_table, data, append = T, safer = T,
-                        toupper = T, check_names = T,
+                         check_names = T,
                         verbose = F) {
-  if (toupper) names(data) <- toupper(names(data))
 
   check_accdb(dbase)
 
   field_check <- check_table_names(dbase, trg_table, data)
   if (length(field_check)) stop("Please fix field differences before proceeding.")
 
-  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "")
+  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "", case="nochange")
   RODBC::sqlSave(conn, data,
     tablename = trg_table, rownames = F,
-    safer = safer, append = append, nastring = NULL, verbose = verbose
+    safer = safer, append = append, nastring = "", verbose = verbose
   )
   return(RODBC::odbcClose(conn))
 }
@@ -246,11 +237,11 @@ append_data <- function(dbase, trg_table, data, append = T, safer = T,
 ##' @author R. Adam Cottrill
 get_trg_table_names <- function(trg_db, table) {
   check_accdb(trg_db)
-  DBConnection <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
   stmt <- sprintf("select * from [%s] where FALSE;", table)
-  dat <- RODBC::sqlQuery(DBConnection, stmt, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
-  RODBC::odbcClose(DBConnection)
-  return(toupper(names(dat)))
+  dat <- RODBC::sqlQuery(conn, stmt, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
+  RODBC::odbcClose(conn)
+  return(names(dat))
 }
 
 
@@ -294,44 +285,6 @@ check_table_names <- function(trg_db, table, src_data) {
 
 
 
-##' Extract time from datetime object
-##'
-##' MS Access and/or odbc driver appends a date of 1899-12-30 to any
-##' time that does have a date component.  Plane time fields are
-##' relatively common in the FN-2 datamodel.  This function takes a
-##' datetime in R, removed the date component, and returns just the
-##' time.
-##' @title Get time from datetime object.
-##' @param datetime - string representing a data time object. It must
-##'   contain time formatted as "HH:MM:SS"
-##' @return datatime object with date component stripped off.
-##' @author R. Adam Cottrill
-##' @export
-##' @examples
-##'
-##' my_date <- "2024-08-12 09:49:15"
-##' my_time <- get_time(my_date)
-##'
-##' get_time(Sys.time())
-##'
-get_time <- function(datetime) {
-  # extract time from date/time string
-
-  time_regex <- ".*([0-2][0-9]:[0-5][0-9]:[0-5][0-9])$"
-  datetime <- ifelse(is.na(datetime), datetime, gsub(time_regex, "\\1", datetime, perl = TRUE))
-
-  msg <- paste0(
-    "One or more values is not a valid time or datetime. ",
-    "The time component should be in the format HH:MM:SS."
-  )
-
-  ifelse(!grepl(time_regex, datetime[!is.na(datetime)]),
-    stop(msg),
-    datetime[!is.na(datetime)]
-  )
-  return(datetime)
-}
-
 
 
 ##' Get distinct project codes in the source database
@@ -354,9 +307,9 @@ get_src_prj_cds <- function(src_db, src_table = "FN011") {
 
   stmt <- sprintf("select distinct [PRJ_CD] from [%s] order by [PRJ_CD];", src_table)
 
-  DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
-  dat <- RODBC::sqlQuery(DBConnection, stmt)
-  RODBC::odbcClose(DBConnection)
+  conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+  dat <- RODBC::sqlQuery(conn, stmt)
+  RODBC::odbcClose(conn)
   return(dat)
 }
 
@@ -406,7 +359,7 @@ AND(FN122.PRJ_CD = FN123.PRJ_CD)
 SET FN122.WATERHAUL = 'TRUE'
 WHERE (((FN123.PRJ_CD) Is Null));"
   check_accdb(dbase)
-  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "")
+  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "", case="nochange")
   RODBC::sqlQuery(conn, sql)
   return(RODBC::odbcClose(conn))
 }
@@ -524,13 +477,13 @@ make_fn012 <- function(fn011, default_protocol = "BSM") {
 ##' @param dbY - path to the second accdb file.
 ##' @param tablename - the name of the table to extract the data from
 ##'   in each table.
-##' @param x_arg - option label for dbX
-##' @param y_arg  - option label for dbY
+##' @param x_label - option label for dbX
+##' @param y_label  - option label for dbY
 ##' @return NULL
 ##' @export
 ##' @author R. Adam Cottrill
-compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
-                           y_arg = "old_master") {
+compare_tables <- function(dbX, dbY, tablename, x_label = "glis",
+                           y_label = "old_master") {
   check_accdb(dbX)
   check_accdb(dbY)
 
@@ -559,12 +512,32 @@ compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
   # make sure the data frames are ordered the same, all columns, left to right:
   dataX <- dataX[do.call(order, as.list(dataX)), ]
   dataY <- dataY[do.call(order, as.list(dataY)), ]
+
+  dataX <- prep_date_time_fields(dataX)
+  dataY <- prep_date_time_fields(dataY)
+
   # remove rownames so irrelevant diffrences are not flagged
   row.names(dataX) <- NULL
   row.names(dataY) <- NULL
 
-  waldo::compare(dataX, dataY, x_arg = x_arg, y_arg = y_arg)
+  waldo::compare(dataX, dataY, x_arg = x_label, y_arg = y_label)
 }
+
+sort_by_fn_keys <- function(df){
+  keyfields <- c("PRJ_CD", "SAM", "SAMA", "SSN", "PRD", "DTP","SPACE", "SUBSPACE",
+      "MODE" , "EFF", "SPC", "GRP", "SIZ", "FISH", "AGEID", "LAMID",
+      "FISH_TAG_ID", "ATYTMO", "FOOD")
+
+  shared_fields <- intersect(keyfields, names(df))
+
+  if (length(shared_fields)) {
+    df[do.call("order", df[shared_fields]), ]
+  }
+
+  return(df)
+}
+
+
 
 
 ##' Return a dataframe with table names in target accdb
@@ -578,7 +551,7 @@ compare_tables <- function(dbX, dbY, tablename, x_arg = "glis",
 ##' @author R. Adam Cottrill
 get_tablenames <- function(trg_db) {
   check_accdb(trg_db)
-  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
   tables <- RODBC::sqlTables(conn)
   RODBC::odbcClose(conn)
   tables <- tables$TABLE_NAME[tables$TABLE_TYPE == "TABLE"]
@@ -593,8 +566,6 @@ get_tablenames <- function(trg_db) {
 ##' @title Fetch all data from an accdb table.
 ##' @param src_db - the path the accdb database
 ##' @param tablename - the name of the table to extract the data from.
-##' @param toupper - should the names be coerced to uppercase (TRUE by
-##'   default)
 ##' @param as.is - passed to RODBC, should returned values be returned
 ##'   "as-is", or converted to their R-equivalents?
 ##' @param stringsAsFactors  - passed to RODBC, should string values be returned
@@ -603,18 +574,20 @@ get_tablenames <- function(trg_db) {
 ##' @return dataframe containing all of the data in the specified
 ##'   table.
 ##' @author R. Adam Cottrill
-fetch_table_data <- function(src_db, tablename, toupper = T,
+fetch_table_data <- function(src_db, tablename,
                              as.is = TRUE, stringsAsFactors = FALSE, na.strings = "") {
   check_accdb(src_db)
   sql <- sprintf("select * from [%s];", tablename)
-  DBConnection <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "")
-  dat <- RODBC::sqlQuery(DBConnection, sql,
+  conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+  dat <- RODBC::sqlQuery(conn, sql,
     as.is = as.is,
     stringsAsFactors = stringsAsFactors,
     na.strings = na.strings
   )
-  RODBC::odbcClose(DBConnection)
-  if (toupper) names(dat) <- toupper(names(dat))
+  RODBC::odbcClose(conn)
+
+  dat <- sort_by_fn_keys(dat)
+  dat <- prep_date_time_fields(dat)
   return(dat)
 }
 
@@ -651,7 +624,6 @@ recode_prj_cd <- function(src_db, orig_prj_cd, new_prj_cd, trg_name = NULL, over
     stop(msg)
   }
 
-
   trg_name <- build_trg_name(src_db, orig_prj_cd, new_prj_cd, trg_name)
 
   if (file.exists(trg_name) && !overwrite) {
@@ -674,8 +646,6 @@ recode_prj_cd <- function(src_db, orig_prj_cd, new_prj_cd, trg_name = NULL, over
 
   skip <- c("")
 
-  time_fields <- c("EFFTM0_GE", "EFFTM0_LT", "EFFTM0", "EFFTM1")
-
   cat("Fetching and inserting data into:\n")
   # Get the new data
   for (table in tablenames) {
@@ -684,17 +654,15 @@ recode_prj_cd <- function(src_db, orig_prj_cd, new_prj_cd, trg_name = NULL, over
       if ("PRJ_CD" %in% names(payload)) {
         payload$PRJ_CD[payload$PRJ_CD == orig_prj_cd] <- new_prj_cd
       }
-
-      # apply get_time to each column in payload that is in field_fields
-      payload[, names(payload) %in% time_fields] <- lapply(payload[, names(payload) %in% time_fields], get_time)
-
       cat(sprintf("\t%s: %s\n", table, nrow(payload)))
       if (nrow(payload)) {
+        payload <- prep_date_time_fields(payload)
         append_data(trg_name, table, payload)
       }
     }
   }
 }
+
 
 
 ##' Delete the all of data from target table
@@ -827,7 +795,6 @@ merge_templates <- function(dbX, dbY) {
   append <- intersect(tablesx, tablesy)
   insert <- setdiff(tablesx, tablesy)
 
-  time_fields <- c("EFFTM0_GE", "EFFTM0_LT", "EFFTM0", "EFFTM1")
 
   # for each table in append, fetch the data from Y and append it to X
   skip <- c("_version")
@@ -837,12 +804,11 @@ merge_templates <- function(dbX, dbY) {
   if (length(append)) {
     cat("Appending data from:\n")
     for (table in append) {
-      payload <- fetch_table_data(dbY, table, as.is = F)
+      payload <- fetch_table_data(dbY, table)
       cat(sprintf("\t%s: %s\n", table, nrow(payload)))
 
       if (nrow(payload)) {
-        # apply get_time to each column in payload that is in field_fields
-        payload[, names(payload) %in% time_fields] <- lapply(payload[, names(payload) %in% time_fields], get_time)
+        payload <- prep_date_time_fields(payload)
         append_data(dbX, table, payload)
       }
     }
@@ -851,11 +817,10 @@ merge_templates <- function(dbX, dbY) {
   if (length(insert)) {
     cat("Inserting data from:\n")
     for (table in insert) {
-      payload <- fetch_table_data(dbY, table, as.is = F)
+      payload <- fetch_table_data(dbY, table)
       cat(sprintf("\t%s: %s\n", table, nrow(payload)))
       if (nrow(payload)) {
-        # apply get_time to each column in payload that is in field_fields
-        payload[, names(payload) %in% time_fields] <- lapply(payload[, names(payload) %in% time_fields], get_time)
+        payload <- prep_date_time_fields(payload)
         append_data(dbX, table, payload, append = FALSE)
       }
     }

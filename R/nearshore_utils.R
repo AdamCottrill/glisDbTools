@@ -267,11 +267,11 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
 ##' @return - dataframe containing the FN011 data for the specified
 ##'   assessment project
 ##' @author R. Adam Cottrill
- get_nearshore_fn011 <- function(prj_cds, src_db) {
+get_nearshore_fn011 <- function(prj_cds, src_db) {
   # a function replace the Get_FN011 query from the mapper database.
 
-  sql <- "SELECT Year, PRJ_CD, PRJ_NM, PRJ_LDR, PRJ_DATE0, PRJ_DATE1,
-          Comment0, Protocol
+  sql <- "SELECT YEAR, PRJ_CD, PRJ_NM, PRJ_LDR, PRJ_DATE0, PRJ_DATE1,
+          COMMENT0, PROTOCOL
           FROM IA011
           WHERE PRJ_CD in (%s)
           ORDER BY Year, PRJ_CD;"
@@ -303,9 +303,9 @@ get_nearshore_fn022 <- function(prj_cds, src_db) {
   # a function replace the Get_FN022 query from the mapper database.
 
 
-  sql <- "SELECT PRJ_CD, '00' AS SSN, 'Coming Soon' AS SSN_DES,
-           Min(EFFDT0) AS SSN_DATE0, Max(EFFDT1) AS SSN_DATE1
-           FROM IA121 GROUP BY PRJ_CD, '00', 'Coming Soon'
+  sql <- "SELECT PRJ_CD, '00' AS SSN, 'COMING SOON' AS SSN_DES,
+           MIN(EFFDT0) AS SSN_DATE0, MAX(EFFDT1) AS SSN_DATE1
+           FROM IA121 GROUP BY PRJ_CD, '00', 'COMING SOON'
           HAVING PRJ_CD in (%s);"
 
   project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
@@ -595,11 +595,11 @@ get_nearshore_fn122 <- function(prj_cds, src_db) {
 get_nearshore_fn123 <- function(prj_cds, src_db) {
   # a function replace the Get_FN123 query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, Trim(Str([ia123].[SAM])) AS SAM, EFF, Spc, GRP, CATCNT,
+  sql <- "SELECT PRJ_CD, Trim(Str([ia123].[SAM])) AS SAM, EFF, SPC, GRP, CATCNT,
            BIOCNT, SUBCNT, SUBWT, COMMENT3, '' AS CATWT
            FROM IA123
            WHERE PRJ_CD in (%s)
-           ORDER BY PRJ_CD, Trim(Str([ia123].[SAM])), EFF, Spc, GRP;
+           ORDER BY PRJ_CD, Trim(Str([ia123].[SAM])), EFF, SPC, GRP;
            "
   project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
@@ -634,7 +634,7 @@ get_nearshore_fn125 <- function(prj_cds, src_db) {
       SELECT PRJ_CD,
       Trim(Str([ia125].[SAM])) AS SAM,
       EFF,
-      Spc,
+      SPC,
       GRP,
       FISH,
       FLEN,
@@ -658,7 +658,7 @@ get_nearshore_fn125 <- function(prj_cds, src_db) {
       '' AS STOM_CONTENTS_WT
       FROM IA125
       WHERE PRJ_CD in (%s)
-      ORDER BY PRJ_CD, Trim(Str([ia125].[SAM])), EFF, Spc, GRP, FISH;"
+      ORDER BY PRJ_CD, Trim(Str([ia125].[SAM])), EFF, SPC, GRP, FISH;"
   project_codes <- paste(sapply(prj_cds, sQuote), collapse = ", ")
 
   stmt <- format_prj_cd_sql(
@@ -686,12 +686,12 @@ get_nearshore_fn125 <- function(prj_cds, src_db) {
 get_nearshore_fn125_tags <- function(prj_cds, src_db) {
   # a function replace the Get_FN125 query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, SAM, EFF, Spc, GRP, FISH,
-          1 AS Fish_tag_id,
+  sql <- "SELECT PRJ_CD, SAM, EFF, SPC, GRP, FISH,
+          1 AS FISH_TAG_ID,
           TAGID,
           TAGDOC,
           TAGSTAT,
-          [xcwtseq] AS cwtseq,
+          [xcwtseq] AS CWTSEQ,
           '' AS COMMENT_TAG
           FROM IA125
           WHERE PRJ_CD in (%s)
@@ -714,12 +714,12 @@ get_nearshore_fn125_xtags <- function(prj_cds, src_db) {
   # to fetch any tag data contained in XTAGID fields.  A warning will
   # be printed if this query returns any resutls because TAGDOC and
   # TAGSTAT will have to be verified in the populated template:
-  sql <- "SELECT PRJ_CD, SAM, EFF, Spc, GRP, FISH,
-          1 AS Fish_tag_id,
-          XTAGID as TAGID,
+  sql <- "SELECT PRJ_CD, SAM, EFF, SPC, GRP, FISH,
+          1 AS FISH_TAG_ID,
+          XTAGID AS TAGID,
           TAGDOC,
           TAGSTAT,
-          [xcwtseq] AS cwtseq,
+          [XCWTSEQ] AS CWTSEQ,
           '' AS COMMENT_TAG
           FROM IA125
           WHERE PRJ_CD in (%s)
@@ -755,7 +755,7 @@ get_nearshore_fn125_xtags <- function(prj_cds, src_db) {
 get_nearshore_fn125_lamprey <- function(prj_cds, src_db) {
   # a function replace the Get_FN125_tags query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, Trim(Str([IA125].[SAM])) AS SAM, EFF, Spc, GRP,
+  sql <- "SELECT PRJ_CD, Trim(Str([IA125].[SAM])) AS SAM, EFF, SPC, GRP,
           FISH, 1 AS LAMID, LAMIJC, XLAM, COMMENT5 AS COMMENT_LAM
           FROM IA125
           WHERE PRJ_CD in (%1$s) AND LAMIJC Is Not Null OR
@@ -794,7 +794,7 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
   sql <- "SELECT IA125.PRJ_CD,
           Trim(Str([IA125].[SAM])) AS SAM,
           IA125.EFF,
-           IA125.Spc,
+           IA125.SPC,
            IA125.GRP,
            IA125.FISH,
            1 AS FOOD,
@@ -811,7 +811,7 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
           SELECT IA126.PRJ_CD,
            Trim(Str([IA126].[SAM])) AS SAM,
            IA126.EFF,
-           IA126.Spc,
+           IA126.SPC,
            '00' AS GRP,
            IA126.FISH,
            IA126.FOOD,
@@ -858,12 +858,12 @@ get_nearshore_fn125_ages <- function(prj_cds, src_db) {
          PRJ_CD,
          Trim(Str([IA125].[SAM])) as SAM,
          EFF,
-         Spc,
+         SPC,
          GRP,
          FISH,
-         125 as ageId,
+         125 AS AGEID,
          AGE as AGEA,
-         'TRUE' as Preferred,
+         'TRUE' AS PREFERRED,
          AGEMT,
          XAGEM,
          CONF,
@@ -887,7 +887,7 @@ get_nearshore_fn125_ages <- function(prj_cds, src_db) {
          PRJ_CD,
          Trim(Str([IA125].[SAM])),
          EFF,
-         Spc,
+         SPC,
          GRP,
          FISH;
      "
@@ -920,14 +920,14 @@ get_nearshore_fn127 <- function(prj_cds, src_db) {
 
   sql <- "SELECT
      PRJ_CD,
-     Trim(Str([IA127].[SAM])) AS SAM,
+     TRIM(STR([IA127].[SAM])) AS SAM,
      EFF,
-     Spc,
+     SPC,
      GRP,
      FISH,
-     IIf(IsNull([IA127].[ageid]),1,[IA127].[ageid]) AS AGEID,
+     IIF(ISNULL([IA127].[AGEID]),1,[IA127].[AGEID]) AS AGEID,
      AGEA,
-     'FALSE' AS Preferred,
+     'FALSE' AS PREFERRED,
      AGEMT,
      CONF,
      '' AS NCA,
@@ -936,10 +936,10 @@ get_nearshore_fn127 <- function(prj_cds, src_db) {
      '' AS AGESTRM,
      '' AS AGELAKE,
      '' AS SPAWNCHKCNT,
-     IIf(IsNull([AGEA]),1,NULL) AS AGE_FAIL
+     IIF(ISNULL([AGEA]),1,NULL) AS AGE_FAIL
        FROM IA127
      WHERE PRJ_CD in (%s)
-     ORDER BY PRJ_CD, Trim(Str([IA127].[SAM])), EFF, Spc, GRP, FISH,
+     ORDER BY PRJ_CD, Trim(Str([IA127].[SAM])), EFF, SPC, GRP, FISH,
       IIf(IsNull([IA127].[ageid]),1,[IA127].[ageid]);
      "
 

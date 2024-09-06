@@ -249,7 +249,7 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
 get_creesys_fn011 <- function(prj_cd, src_db) {
   # a function replace the Get_FN011 query from the mapper database.
 
-  sql <- "SELECT Year, PRJ_CD, CONTMETH, PRJ_DATE0, PRJ_DATE1, PRJ_LDR, PRJ_NM, COMMENT0
+  sql <- "SELECT YEAR, PRJ_CD, CONTMETH, PRJ_DATE0, PRJ_DATE1, PRJ_LDR, PRJ_NM, COMMENT0
         FROM fn011
         WHERE PRJ_CD='%s';"
 
@@ -352,7 +352,7 @@ get_creesys_fn024 <- function(prj_cd, src_db) {
 get_creesys_fn025 <- function(prj_cd, src_db) {
   # a function replace the Get_FN025 query from the mapper database.
 
-  sql <- "SELECT FN025.PRJ_CD, SSN, FN025.Date, DTP1, 'Holiday' AS Description
+  sql <- "SELECT FN025.PRJ_CD, SSN, FN025.DATE, DTP1, 'Holiday' AS DESCRIPTION
         FROM FN022 INNER JOIN FN025 ON FN022.PRJ_CD = FN025.PRJ_CD
         WHERE FN025.PRJ_CD='%s' AND
         FN025.Date Between [SSN_DATE0] And [SSN_DATE1]
@@ -381,7 +381,7 @@ get_creesys_fn025 <- function(prj_cd, src_db) {
 get_creesys_fn026 <- function(prj_cd, src_db) {
   # a function replace the Get_FN026 query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, Space, SPACE_DES, AREA_WT AS SPACE_WT, SPACE_SIZ, DD_LAT, DD_LON
+  sql <- "SELECT PRJ_CD, SPACE, SPACE_DES, AREA_WT AS SPACE_WT, SPACE_SIZ, DD_LAT, DD_LON
         FROM FN026
         WHERE PRJ_CD='%s'
         ORDER BY PRJ_CD, Space;"
@@ -407,7 +407,7 @@ get_creesys_fn026 <- function(prj_cd, src_db) {
 get_creesys_fn026_subspace <- function(prj_cd, src_db) {
   # a function replace the Get_FN026_subspace query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, Space, Space AS SUBSPACE, SPACE_DES AS SUBSPACE_DES,
+  sql <- "SELECT PRJ_CD, SPACE, SPACE AS SUBSPACE, SPACE_DES AS SUBSPACE_DES,
         SPACE_SIZ AS SUBSPACE_SIZ, DD_LAT, DD_LON, 0 AS SUBSPACE_WT
         FROM FN026
         WHERE PRJ_CD='%s'
@@ -458,8 +458,8 @@ get_creesys_fn028 <- function(prj_cd, src_db) {
 get_creesys_fn111 <- function(prj_cd, src_db) {
   # a function replace the Get_FN111 query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, SAMA, STRATUM, MODE, Date, SAMTM0, COMMENT1, DOW,
-        Space AS SUBSPACE, WEATHER AS WEATHER_EFFECT, ATYDATA, CREW,
+  sql <- "SELECT PRJ_CD, SAMA, STRATUM, MODE, DATE, SAMTM0, COMMENT1, DOW,
+        SPACE AS SUBSPACE, WEATHER AS WEATHER_EFFECT, ATYDATA, CREW,
         AIRTEM0 AS AIRTEM, SITEM0 AS SITEM, WIND, CLOUD_PC, PRECIP
         FROM FN111
         WHERE PRJ_CD='%s'
@@ -516,17 +516,17 @@ get_creesys_fn121 <- function(prj_cd, src_db) {
             FN121.SAM,
             FN121.SAMA,
             ITVSEQ,
-            IIf(
-                isnull(
-                    [FN121].[stratum]
+            IIF(
+                ISNULL(
+                    [FN121].[STRATUM]
                 ),
-                [fn111].[stratum],
-                [fn121].[stratum]
-            ) as STRATUM,
-            Date,
+                [FN111].[STRATUM],
+                [FN121].[STRATUM]
+            ) AS STRATUM,
+            DATE,
             DOW,
             ITVTM0,
-            Space as SUBSPACE,
+            SPACE AS SUBSPACE,
             MODE,
             SAMTM0,
             EFFDT0,
@@ -540,7 +540,7 @@ get_creesys_fn121 <- function(prj_cd, src_db) {
             ANGLERS,
             RODS,
             COMMENT1,
-            GRID as GRID5,
+            GRID AS GRID5,
             DD_LAT,
             DD_LON,
             ANGMETH,
@@ -584,8 +584,8 @@ get_creesys_fn121 <- function(prj_cd, src_db) {
 get_creesys_fn123 <- function(prj_cd, src_db) {
   # a function replace the Get_FN123 query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, SAM, EFF, Spc, GRP, SEK, HVSCNT, RLSCNT,
-        BIOCNT AS MESCNT, MESWT, COMMENT3
+  sql <- "SELECT PRJ_CD, SAM, EFF, SPC, GRP, SEK, HVSCNT, RLSCNT,
+        BIOCNT AS  MESCNT, MESWT, COMMENT3
         FROM FN123
         WHERE PRJ_CD='%s'
         ORDER BY PRJ_CD, SAM, EFF, Spc, GRP, SEK;
@@ -610,7 +610,7 @@ get_creesys_fn123 <- function(prj_cd, src_db) {
 get_creesys_fn125 <- function(prj_cd, src_db) {
   # a function replace the Get_FN125 query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, Trim(Str([FN125].[SAM])) AS SAM, EFF, Spc, GRP, FISH, FLEN,
+  sql <- "SELECT PRJ_CD, TRIM(STR([FN125].[SAM])) AS SAM, EFF, SPC, GRP, FISH, FLEN,
         TLEN, RWT, SEX, MAT, GON, CLIPC, GIRTH, AGEST, NODC, COMMENT5, TISSUE,
         0 AS FDSAM,
         '' AS EVISWT,
@@ -640,8 +640,8 @@ get_creesys_fn125 <- function(prj_cd, src_db) {
 get_creesys_fn125_tags <- function(prj_cd, src_db) {
   # a function replace the Get_FN125_tags query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, SAM, EFF, Spc, GRP, FISH, 1 AS Fish_tag_id,
-          TAGID, TAGDOC, TAGSTAT, xcwtseq AS cwtseq, '' AS COMMENT_TAG
+  sql <- "SELECT PRJ_CD, SAM, EFF, SPC, GRP, FISH, 1 AS FISH_TAG_ID,
+          TAGID, TAGDOC, TAGSTAT, XCWTSEQ AS CWTSEQ, '' AS COMMENT_TAG
           FROM FN125
           WHERE PRJ_CD='%s' AND TAGID Is Not Null And TAGID<>'0';"
 
@@ -667,11 +667,11 @@ get_creesys_fn125_tags <- function(prj_cd, src_db) {
 get_creesys_fn125_lamprey <- function(prj_cd, src_db) {
   # a function replace the Get_FN125_tags query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, Trim(Str([FN125].[SAM])) AS SAM, EFF, Spc, GRP,
+  sql <- "SELECT PRJ_CD, TRIM(STR([FN125].[SAM])) AS SAM, EFF, SPC, GRP,
           FISH, 1 AS LAMID, LAMIJC, XLAM, COMMENT5 AS COMMENT_LAM
           FROM FN125
-          WHERE PRJ_CD='%1$s' AND LAMIJC Is Not Null OR
-          PRJ_CD='%1$s' AND XLAM Is Not Null;"
+          WHERE (PRJ_CD='%1$s' AND LAMIJC IS NOT NULL) OR
+          (PRJ_CD='%1$s' AND XLAM Is Not Null);"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
   dat <- fetch_sql(stmt, src_db)
@@ -694,7 +694,7 @@ get_creesys_fn125_lamprey <- function(prj_cd, src_db) {
 get_creesys_fn126 <- function(prj_cd, src_db) {
   # a function replace the Get_FN126 query from the mapper database.
 
-  sql <- "SELECT PRJ_CD, Trim(Str([FN126].[SAM])) AS SAM, EFF, Spc,
+  sql <- "SELECT PRJ_CD, TRIM(STR([FN126].[SAM])) AS SAM, EFF, SPC,
         '00' AS GRP, FISH, FOOD, TAXON, FDCNT, '' AS FDMES,
         '' AS FDVAL, '' AS LF, '' AS COMMENT6
         FROM FN126
@@ -720,33 +720,33 @@ get_creesys_fn126 <- function(prj_cd, src_db) {
 ##'   creel
 ##' @author R. Adam Cottrill
 get_creesys_fn125_ages <- function(prj_cd, src_db) {
-  sql <- "select
+  sql <- "SELECT
          PRJ_CD,
-         Trim(Str([FN125].[SAM])) as SAM,
+         TRIM(STR([FN125].[SAM])) AS SAM,
          EFF,
-         Spc,
+         SPC,
          GRP,
          FISH,
-         125 as ageId,
-         AGE as AGEA,
-         'TRUE' as Preferred,
+         125 AS AGEID,
+         AGE AS AGEA,
+         'TRUE' AS PREFERRED,
          AGEMT,
          XAGEM,
          CONF,
-         '' as NCA,
+         '' AS NCA,
          EDGE,
-         '' as COMMENT7,
-          '' as AGESTRM,
-          '' as AGELAKE,
-          '' as SPAWNCHKCNT,
-          IIf(
-             isnull(
+         '' AS COMMENT7,
+          '' AS AGESTRM,
+          '' AS AGELAKE,
+          '' AS SPAWNCHKCNT,
+          IIF(
+             ISNULL(
                  [AGEA]
              ),
              1,
              NULL
-         ) as AGE_FAIL
-     from
+         ) AS AGE_FAIL
+     FROM
          FN125
      where PRJ_CD='%s' and  XAGEM is not null
      order by
@@ -779,14 +779,14 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
 
   sql <- "SELECT
      PRJ_CD,
-     Trim(Str([FN127].[SAM])) AS SAM,
+     TRIM(STR([FN127].[SAM])) AS SAM,
      EFF,
-     Spc,
+     SPC,
      GRP,
      FISH,
-     IIf(IsNull([FN127].[ageid]),1,[FN127].[ageid]) AS AGEID,
+     IIF(ISNULL([FN127].[AGEID]),1,[FN127].[AGEID]) AS AGEID,
      AGEA,
-     'FALSE' AS Preferred,
+     'FALSE' AS PREFERRED,
      AGEMT,
      CONF,
      '' AS NCA,
@@ -795,11 +795,11 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
      '' AS AGESTRM,
      '' AS AGELAKE,
      '' AS SPAWNCHKCNT,
-     IIf(IsNull([AGEA]),1,NULL) AS AGE_FAIL
+     IIF(ISNULL([AGEA]),1,NULL) AS AGE_FAIL
        FROM FN127
      WHERE PRJ_CD='%s'
-     ORDER BY PRJ_CD, Trim(Str([FN127].[SAM])), EFF, Spc, GRP, FISH,
-      IIf(IsNull([FN127].[ageid]),1,[FN127].[ageid]);
+     ORDER BY PRJ_CD, TRIM(STR([FN127].[SAM])), EFF, SPC, GRP, FISH,
+      IIF(ISNULL([FN127].[AGEID]),1,[FN127].[AGEID]);
      "
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
@@ -820,7 +820,7 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
 ##' @author R. Adam Cottrill
 get_creesys_questions <- function(prj_cd, src_db) {
   sql <- "SELECT PRJ_CD, ANG_OP AS QUESTION_NUMBER, ANG_QUES AS QUESTION_TEXT
-     FROM OptionQ
+     FROM OPTIONQ
      WHERE PRJ_CD='%s';"
 
 
@@ -845,7 +845,7 @@ get_creesys_answers <- function(prj_cd, src_db) {
   # a function replace the Get_FN126 query from the mapper database.
 
   sql <- "SELECT PRJ_CD, ANG_OP AS QUESTION_NUMBER, ANG_AN AS ANSWER_NUMBER, ANG_ANS AS ANSWER_TEXT
-     FROM OptionA
+     FROM OPTIONA
      WHERE PRJ_CD='%s';
      "
   stmt <- format_prj_cd_sql(sql, prj_cd)
@@ -872,7 +872,7 @@ get_creesys_answers <- function(prj_cd, src_db) {
 ##' @author R. Adam Cottrill
 switch_and_update_dtp <- function(trg_db) {
   check_accdb(trg_db)
-  con <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "")
+  con <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
   switch_dtp(con, "FN023")
   switch_dtp(con, "FN024")
   switch_dtp(con, "FN025", "DTP1")
