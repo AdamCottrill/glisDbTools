@@ -272,8 +272,8 @@ procval_plot(db, "075", what = "RWT")
 
 
 
-![Process Validate Condition Plots](./images/ProcValConditionPlot.jpg)
-![Process Validate TLEN Plot](./images/ProcValTlenPlot.jpg)
+![Process Validate Condition Plots](./man/figures/ProcValConditionPlot.jpg)
+![Process Validate TLEN Plot](./man/figures/ProcValTlenPlot.jpg)
 
 
 
