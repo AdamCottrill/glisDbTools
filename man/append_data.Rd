@@ -10,7 +10,6 @@ append_data(
   data,
   append = T,
   safer = T,
-  toupper = T,
   check_names = T,
   verbose = F
 )
@@ -39,12 +38,6 @@ if check_names=TRUE.
 \item{safer}{\itemize{
 \item passed to sqlSave() - only appends are allowed if
 safer=TRUE
-}}
-
-\item{toupper}{\itemize{
-\item should the names of tables be converted to
-uppercase before being checked?  Ensures that check_names is
-case-insentive.
 }}
 
 \item{check_names}{\itemize{

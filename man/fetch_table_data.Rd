@@ -7,7 +7,6 @@
 fetch_table_data(
   src_db,
   tablename,
-  toupper = T,
   as.is = TRUE,
   stringsAsFactors = FALSE,
   na.strings = ""
@@ -20,11 +19,6 @@ fetch_table_data(
 
 \item{tablename}{\itemize{
 \item the name of the table to extract the data from.
-}}
-
-\item{toupper}{\itemize{
-\item should the names be coerced to uppercase (TRUE by
-default)
 }}
 
 \item{as.is}{\itemize{

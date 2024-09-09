@@ -4,7 +4,7 @@
 \alias{compare_tables}
 \title{Compare Database Tables}
 \usage{
-compare_tables(dbX, dbY, tablename, x_arg = "glis", y_arg = "old_master")
+compare_tables(dbX, dbY, tablename, x_label = "glis", y_label = "old_master")
 }
 \arguments{
 \item{dbX}{\itemize{
@@ -20,11 +20,11 @@ compare_tables(dbX, dbY, tablename, x_arg = "glis", y_arg = "old_master")
 in each table.
 }}
 
-\item{x_arg}{\itemize{
+\item{x_label}{\itemize{
 \item option label for dbX
 }}
 
-\item{y_arg}{\itemize{
+\item{y_label}{\itemize{
 \item option label for dbY
 }}
 }

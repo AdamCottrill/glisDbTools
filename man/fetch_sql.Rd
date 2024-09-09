@@ -4,7 +4,7 @@
 \alias{fetch_sql}
 \title{Fetch data from src database.}
 \usage{
-fetch_sql(sql, src_db, toupper = TRUE, payload = TRUE)
+fetch_sql(sql, src_db, payload = TRUE)
 }
 \arguments{
 \item{sql}{\itemize{
@@ -14,11 +14,6 @@ fetch_sql(sql, src_db, toupper = TRUE, payload = TRUE)
 \item{src_db}{\itemize{
 \item a string representing the path to the src
 database.
-}}
-
-\item{toupper}{\itemize{
-\item Boolean. default=TRUE, should names of returned
-dataframe be converted to uppercase before returning?
 }}
 
 \item{payload}{\itemize{
@@ -35,9 +30,7 @@ Execute a select sql statement and return the results
 \details{
 This funciton is a wrapper around the RODBC funct sqlQuery with
 default arguments that will prevent R from converting strings to
-factors and/or dropping leading zeros. The option toupper ensures
-the names of the returned dataframe are in upper case which
-matches FN-2 naming convension.
+factors and/or dropping leading zeros.
 }
 \author{
 R. Adam Cottrill

@@ -872,7 +872,7 @@ get_creesys_answers <- function(prj_cd, src_db) {
 ##' @author R. Adam Cottrill
 switch_and_update_dtp <- function(trg_db) {
   check_accdb(trg_db)
-  con <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
+  con <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case = "nochange")
   switch_dtp(con, "FN023")
   switch_dtp(con, "FN024")
   switch_dtp(con, "FN025", "DTP1")

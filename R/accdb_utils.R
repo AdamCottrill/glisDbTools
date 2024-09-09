@@ -12,7 +12,7 @@
 populate_readme <- function(trg_db, src_db) {
   readme_msg <- sprintf("Template populated from %s on %s", basename(src_db), Sys.time())
   README <- data.frame("README" = readme_msg)
-  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case = "nochange")
   RODBC::sqlSave(conn, README, rownames = F, append = FALSE)
   RODBC::odbcClose(conn)
 }
@@ -107,15 +107,15 @@ check_accdb <- function(src_db, exists = TRUE) {
 ##' @return A dataframe containing the data returned by the sql
 ##'   statement.
 ##' @author R. Adam Cottrill
-fetch_sql <- function(sql, src_db,  payload = TRUE) {
+fetch_sql <- function(sql, src_db, payload = TRUE) {
   check_accdb(src_db)
   if (payload) {
-    conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+    conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case = "nochange")
     dat <- RODBC::sqlQuery(conn, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
     RODBC::odbcClose(conn)
     return(dat)
   } else {
-    conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+    conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case = "nochange")
     RODBC::sqlQuery(conn, sql)
     RODBC::odbcClose(conn)
   }
@@ -207,15 +207,14 @@ format_prj_cd_sql <- function(sql, prj_cd) {
 ##' @export
 ##' @author R. Adam Cottrill
 append_data <- function(dbase, trg_table, data, append = T, safer = T,
-                         check_names = T,
+                        check_names = T,
                         verbose = F) {
-
   check_accdb(dbase)
 
   field_check <- check_table_names(dbase, trg_table, data)
   if (length(field_check)) stop("Please fix field differences before proceeding.")
 
-  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "", case="nochange")
+  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "", case = "nochange")
   RODBC::sqlSave(conn, data,
     tablename = trg_table, rownames = F,
     safer = safer, append = append, nastring = "", verbose = verbose
@@ -237,7 +236,7 @@ append_data <- function(dbase, trg_table, data, append = T, safer = T,
 ##' @author R. Adam Cottrill
 get_trg_table_names <- function(trg_db, table) {
   check_accdb(trg_db)
-  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case = "nochange")
   stmt <- sprintf("select * from [%s] where FALSE;", table)
   dat <- RODBC::sqlQuery(conn, stmt, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
   RODBC::odbcClose(conn)
@@ -307,7 +306,7 @@ get_src_prj_cds <- function(src_db, src_table = "FN011") {
 
   stmt <- sprintf("select distinct [PRJ_CD] from [%s] order by [PRJ_CD];", src_table)
 
-  conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+  conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case = "nochange")
   dat <- RODBC::sqlQuery(conn, stmt)
   RODBC::odbcClose(conn)
   return(dat)
@@ -359,7 +358,7 @@ AND(FN122.PRJ_CD = FN123.PRJ_CD)
 SET FN122.WATERHAUL = 'TRUE'
 WHERE (((FN123.PRJ_CD) Is Null));"
   check_accdb(dbase)
-  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "", case="nochange")
+  conn <- RODBC::odbcConnectAccess2007(dbase, uid = "", pwd = "", case = "nochange")
   RODBC::sqlQuery(conn, sql)
   return(RODBC::odbcClose(conn))
 }
@@ -523,10 +522,12 @@ compare_tables <- function(dbX, dbY, tablename, x_label = "glis",
   waldo::compare(dataX, dataY, x_arg = x_label, y_arg = y_label)
 }
 
-sort_by_fn_keys <- function(df){
-  keyfields <- c("PRJ_CD", "SAM", "SAMA", "SSN", "PRD", "DTP","SPACE", "SUBSPACE",
-      "MODE" , "EFF", "SPC", "GRP", "SIZ", "FISH", "AGEID", "LAMID",
-      "FISH_TAG_ID", "ATYTMO", "FOOD")
+sort_by_fn_keys <- function(df) {
+  keyfields <- c(
+    "PRJ_CD", "SAM", "SAMA", "SSN", "PRD", "DTP", "SPACE", "SUBSPACE",
+    "MODE", "EFF", "SPC", "GRP", "SIZ", "FISH", "AGEID", "LAMID",
+    "FISH_TAG_ID", "ATYTMO", "FOOD"
+  )
 
   shared_fields <- intersect(keyfields, names(df))
 
@@ -551,7 +552,7 @@ sort_by_fn_keys <- function(df){
 ##' @author R. Adam Cottrill
 get_tablenames <- function(trg_db) {
   check_accdb(trg_db)
-  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case="nochange")
+  conn <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case = "nochange")
   tables <- RODBC::sqlTables(conn)
   RODBC::odbcClose(conn)
   tables <- tables$TABLE_NAME[tables$TABLE_TYPE == "TABLE"]
@@ -578,7 +579,7 @@ fetch_table_data <- function(src_db, tablename,
                              as.is = TRUE, stringsAsFactors = FALSE, na.strings = "") {
   check_accdb(src_db)
   sql <- sprintf("select * from [%s];", tablename)
-  conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case="nochange")
+  conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case = "nochange")
   dat <- RODBC::sqlQuery(conn, sql,
     as.is = as.is,
     stringsAsFactors = stringsAsFactors,
