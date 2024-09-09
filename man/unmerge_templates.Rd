@@ -4,7 +4,7 @@
 \alias{unmerge_templates}
 \title{Delete data from one database based on another}
 \usage{
-unmerge_templates(dbX, dbY)
+unmerge_templates(dbX, dbY, prompt = TRUE)
 }
 \arguments{
 \item{dbX}{\itemize{
@@ -16,12 +16,17 @@ unmerge_templates(dbX, dbY)
 will be removed from dbX.  It must have an FN011 table with
 field PRJ_CD.
 }}
+
+\item{prompt}{\itemize{
+\item Should the use be ask to confirm before deleting
+the data? Defaults to TRUE.
+}}
 }
 \description{
 Unmerge Template Databases
 }
 \details{
-This function is the complicment to merge_template and will remove
+This function is the compliment to merge_template and will remove
 all of the data from one template based on the project codes found
 in another. The most common use case for this function is backing
 out changes that were created by merge_templates when an error

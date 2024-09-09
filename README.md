@@ -147,6 +147,136 @@ compare_tables(glis_db, nearshore_db, "FN127")
 ```
 
 
+## Recode PRJ_CD in a Populated Template
+
+Occasionally, a project code needs to change after some or all of the
+data has been entered into a template database.  The referencial
+integrity built into the template database can make this challenging.
+the recode_prj_cd() function will automate this task without risk of
+corrupting the database or losing any data.
+
+
+``` r
+
+library(glisDbTools)
+
+# the complete path a template populated from glis using
+# glfishr::populate_template()
+glis_db <- "~/your_populated_template.accdb"
+
+orig_prj_cd <- "LHA_IA22_821"
+
+new_prj_cd <- "LHA_IA22_128"
+
+# the recoded data will be found in a file name based on the new project code:
+recode_prj_cd(glis_db, orig_prj_cd, new_prj_cd)
+
+# we can provide a new file name if we wish:
+recode_prj_cd(glis_db, orig_prj_cd, new_prj_cd, "New_recoded_db.accdb")
+
+# by default an error will be thrown if the target database already exists;
+# silence that warning and delete the original file using overwrite=TRUE.
+recode_prj_cd(glis_db, orig_prj_cd, new_prj_cd, "New_recoded_db.accdb")
+
+
+```
+
+
+
+## Merge Populated Templates
+
+In many instances, it is more efficient to work a single large
+template rather than several small ones, the merge_template() function
+will take two populated templates and attept to merge them into a
+single accdb file.  The operation will fail if a contraint in the
+database is violated (e.g. - duplicate or orphans records).
+
+
+``` r
+
+library(glisDbTools)
+
+# the complete path a template populated from glis using
+# glfishr::populate_template()
+glis_db1 <- "~/LHA_IA22_821.accdb"
+glis_db2 <- "~/LHA_IA22_821.accdb"
+
+
+# data from glis_db2 will be instered into glis_db1.  Progress will be
+# reported to the console as the operation proceeds:
+merge_templates(glis_db1, glis_db2)
+
+```
+
+
+## Unmerge Template
+
+The unmerge_templates function is the compliment to merge_templates
+and will remove all of the data from a template based on the provided
+project codes.  By default, a dialoge will ask the user to confirm the
+project codes to delete, but this can be suppressed by including
+prompt=FALSE when the function is called.
+
+
+
+``` r
+
+library(glisDbTools)
+
+# the complete path a template populated from glis using
+glis_db <- "~/populated_template_database.accdb"
+
+
+# remove all of the data from the 2009 and 2010 '123' projects:
+unmerge_templates(glis_db1, c('LHA_IA09_123','LHA_IA10_123'))
+
+# turn of confirmation message:
+unmerge_templates(glis_db1, c('LHA_IA09_123','LHA_IA10_123'), FALSE)
+
+```
+
+
+
+## Plot FN125 BioData against FN012 Constraints
+
+Process-Validate (the application that ensures consistent of data in
+the template), has a number of queries that check the reported
+biological data in the FN125 table against the contrains spefied for
+the species and group code.  the procval_plots function can be used to
+visualize that data to help identify where there are problems.
+
+
+
+``` r
+
+library(glisDbTools)
+
+# the complete path a template populated from glis using
+glis_db <- "~/populated_template_database.accdb"
+
+# Ktlen and Kflen produce a two panel plot show density of condition
+# factor and length vs weight:
+procval_plot(db, "075", what = "Ktlen", glis_fish = glis_fish)
+
+
+# if what=TLEN,FLEN or RWT, a single panel density plot will be produced
+procval_plot(db, "075", what = "RWT", glis_fish = glis_fish)
+
+# glis_fish is a dataframe with additional biological data that help
+# provide context and appear ni the background of the plot. It is
+# optional, and may not be needed if a large number of data points
+# where collected in your project:
+procval_plot(db, "075", what = "RWT")
+
+```
+
+
+
+![Process Validate Condition Plots](./images/ProcValConditionPlot.jpg)
+![Process Validate TLEN Plot](./images/ProcValTlenPlot.jpg)
+
+
+
 
 ## Future Functionality:
 
@@ -155,27 +285,9 @@ compare_tables(glis_db, nearshore_db, "FN127")
   sources could be added in the future as needed (eg. - fishnet
   archive, Lake Superior FCIN master ect.)
 
-+ split template - given a template that contains multiple projects,
-  split it into separate template databases that can be run through
-  process validate and uploaded individuall if desired.  It should
-  take an optional prj_cds argument.  If prj_cds is null, all of
-  projects in the database will be put into project specific template
-  databases, if it is provided, only the specified projects will be
-  split out.
-
-+ merge templates - given a list of two or more populated templates,
-  merge them into a single template data base that can be run through
-  process validate or uploaded to glis.  There are instances where
-  scrubbing several related projects is more effecient when they are
-  in the same template.
 
 + prune_prj_cds - delete all of the records from the target database
   for the specified project code(s)
-
-+ recode prj_cd - occasionally, a project code needs to change. The
-  referencial integrity built into the template database can make this
-  challenging.  This function will automate this task without risk of
-  corrupting the database or losing any data.
 
 + clone_design_tables - often users want to be able to repeat a past
   project and need to get the FN0* tbales in a new template database
