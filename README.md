@@ -8,7 +8,7 @@ GLIS data upload templates for projects in Creesys 4.1 files, and the
 Lake Huron Nearshore Master database.  It also includes tools to
 compare the contents of tables in two different databases and reports
 any differences if any are found.  For the most part, these tools are
-intended to facilate the migration of data from historical data
+intended to facilitate the migration of data from historical data
 repositories to GLIS.
 
 NOTE: The functions in glisDbTools currently work with glis upload
@@ -25,7 +25,7 @@ devtools::install_github("AdamCottrill/glisDbTools")
 ```
 
 But most users should probably use the pre-compile binary available on
-the GLIS sharepoint site (it will be of the form:
+the GLIS share-point site (it will be of the form:
 "glisDbTools_yyyy.mm.dd.zip").  If are unable to find a recent
 version, contact the package author or one of the GLIS administrators.
 
@@ -99,13 +99,13 @@ nearshore_to_template(prj_cds, src_db, template_db, overwrite=TRUE)
 One of the most basic challenges that we will face as we migrate from
 historical dataset to GLIS is comparing what exactly is in the
 historical dataset with what is in GLIS.  the glisDbTools package
-contains some utlities that help with this task.  The primary function
+contains some utilities that help with this task.  The primary function
 for is compare_tables, which will accept the path to accdb file
-populated firectly form GLIS, a path to a second accdb file created
+populated directly form GLIS, a path to a second accdb file created
 from the data in the historical source and the name of the table to
 compare. If the tables are exactly the same in both sources, the
 function will report "no differences".  If there are differences, a
-report will pre presented with information about each discrepancy.
+report will be presented with information about each discrepancy.
 The user can then decide if changes need to be made in GLIS, or if the
 data in GLIS has already been updated and cleaned.
 
@@ -150,7 +150,7 @@ compare_tables(glis_db, nearshore_db, "FN127")
 ## Recode PRJ_CD in a Populated Template
 
 Occasionally, a project code needs to change after some or all of the
-data has been entered into a template database.  The referencial
+data has been entered into a template database.  The referential
 integrity built into the template database can make this challenging.
 the recode_prj_cd() function will automate this task without risk of
 corrupting the database or losing any data.
@@ -160,8 +160,7 @@ corrupting the database or losing any data.
 
 library(glisDbTools)
 
-# the complete path a template populated from glis using
-# glfishr::populate_template()
+# the complete path a populated template database
 glis_db <- "~/your_populated_template.accdb"
 
 orig_prj_cd <- "LHA_IA22_821"
@@ -187,8 +186,8 @@ recode_prj_cd(glis_db, orig_prj_cd, new_prj_cd, "New_recoded_db.accdb")
 
 In many instances, it is more efficient to work a single large
 template rather than several small ones, the merge_template() function
-will take two populated templates and attept to merge them into a
-single accdb file.  The operation will fail if a contraint in the
+will take two populated templates and attempt to merge them into a
+single accdb file.  The operation will fail if a constraint in the
 database is violated (e.g. - duplicate or orphans records).
 
 
@@ -196,11 +195,9 @@ database is violated (e.g. - duplicate or orphans records).
 
 library(glisDbTools)
 
-# the complete path a template populated from glis using
-# glfishr::populate_template()
+# the complete paths to two populated templates:
 glis_db1 <- "~/LHA_IA22_821.accdb"
 glis_db2 <- "~/LHA_IA22_821.accdb"
-
 
 # data from glis_db2 will be instered into glis_db1.  Progress will be
 # reported to the console as the operation proceeds:
@@ -223,14 +220,14 @@ prompt=FALSE when the function is called.
 
 library(glisDbTools)
 
-# the complete path a template populated from glis using
+# the complete path a populated template:
 glis_db <- "~/populated_template_database.accdb"
 
 
-# remove all of the data from the 2009 and 2010 '123' projects:
+# remove all of the data from the 2009 and 2010 '*_123' projects:
 unmerge_templates(glis_db1, c('LHA_IA09_123','LHA_IA10_123'))
 
-# turn of confirmation message:
+# turn of the confirmation message:
 unmerge_templates(glis_db1, c('LHA_IA09_123','LHA_IA10_123'), FALSE)
 
 ```
@@ -241,7 +238,7 @@ unmerge_templates(glis_db1, c('LHA_IA09_123','LHA_IA10_123'), FALSE)
 
 Process-Validate (the application that ensures consistent of data in
 the template), has a number of queries that check the reported
-biological data in the FN125 table against the contrains spefied for
+biological data in the FN125 table against the contains specified for
 the species and group code.  the procval_plots function can be used to
 visualize that data to help identify where there are problems.
 
@@ -251,7 +248,7 @@ visualize that data to help identify where there are problems.
 
 library(glisDbTools)
 
-# the complete path a template populated from glis using
+# the complete path a populated template database:
 glis_db <- "~/populated_template_database.accdb"
 
 # Ktlen and Kflen produce a two panel plot show density of condition
@@ -260,21 +257,21 @@ procval_plot(db, "075", what = "Ktlen", glis_fish = glis_fish)
 
 
 # if what=TLEN,FLEN or RWT, a single panel density plot will be produced
-procval_plot(db, "075", what = "RWT", glis_fish = glis_fish)
+procval_plot(db, "075", what = "TLEN", glis_fish = glis_fish)
 
 # glis_fish is a dataframe with additional biological data that help
-# provide context and appear ni the background of the plot. It is
+# provide context and appear in the background of the plot. It is
 # optional, and may not be needed if a large number of data points
 # where collected in your project:
-procval_plot(db, "075", what = "RWT")
+procval_plot(db, "075", what = "TLEN")
 
 ```
 
-
-
 ![Process Validate Condition Plots](./man/figures/ProcValConditionPlot.jpg)
-![Process Validate TLEN Plot](./man/figures/ProcValTlenPlot.jpg)
 
+![Process Validate TLEN_with_glis_fish Plot](./man/figures/ProcValTlenPlot_glis_fish.jpg)
+
+![Process Validate TLEN Plot](./man/figures/ProcValTlenPlot.jpg)
 
 
 
@@ -290,9 +287,9 @@ procval_plot(db, "075", what = "RWT")
   for the specified project code(s)
 
 + clone_design_tables - often users want to be able to repeat a past
-  project and need to get the FN0* tbales in a new template database
+  project and need to get the FN0* tables in a new template database
   with a new project code.  This could be accomplished by creating a
-  function that takes an old project code, and a new proejct code and
+  function that takes an old project code, and a new project code and
   then populates the data from GLIS, or it could take a populated
   template database (with a single project code) and prune all of the
   records from the FN121 down, and recode the project code for the
