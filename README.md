@@ -271,8 +271,8 @@ map_table_points(db1, "FN121")
 
 ```
 
-![FN026_spaces](./man/figures/FN026_spaces.jpg)
-![FN026_subspaces](./man/figures/FN026_subspaces.jpg)
+![FN026_spaces](./man/figures/FN026_Spaces.jpg)
+![FN026_subspaces](./man/figures/FN026_Subspaces.jpg)
 ![FN121_samples](./man/figures/FN121_samples.jpg)
 
 ## Plot FN125 BioData against FN012 Constraints
