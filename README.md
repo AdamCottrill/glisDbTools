@@ -233,6 +233,47 @@ unmerge_templates(glis_db1, c('LHA_IA09_123','LHA_IA10_123'), FALSE)
 ```
 
 
+## Plot Spatial Data
+
+The GLIS template contains spatail inforamtion in several different
+places - the FN026 and FN026_Subspace tables have fields for latitude
+and longitude that represent the centroid of the space and subspace
+strata, the FN121\_GPS\_Tracks contains coordinates that represent
+trasects collected during electrofishing or trawling transects.
+Finally and the FN121 table contains DD\_LAT0-DD\_LON0 and optionally
+DD\_LAT1-DD\_LON1 to capture the start and end of a sampling event.
+The function ~map_table_points()~ can be used to quickly create
+interactive leaflet maps of the spatial data in each of these tables.
+Right clicking on any point will render a pop-up containing the slug
+of the associated object so it can be quickly and easily found in the source database.
+
+
+
+
+
+``` r
+
+library(glisDbTools)
+
+# the complete path a populated template database:
+glis_db <- "~/populated_template_database.accdb"
+
+# map of the spaces with a larger symbol:
+map_table_points(db1, "FN026", radius=4)
+
+# map of the subspaces in a project, using a different fill colour and larger symbol
+map_table_points(db1, "FN026_Subspace", fill0='cyan', radius=4)
+
+# each record in the fn121 table can have two points, if so, they will
+# be presented as a dumbell two points connected by a line:
+map_table_points(db1, "FN121")
+
+
+```
+
+![FN026_spaces](./man/figures/FN026_spaces.jpg)
+![FN026_subspaces](./man/figures/FN026_subspaces.jpg)
+![FN121_samples](./man/figures/FN121_samples.jpg)
 
 ## Plot FN125 BioData against FN012 Constraints
 
