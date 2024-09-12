@@ -24,10 +24,10 @@ devtools::install_github("AdamCottrill/glisDbTools")
 
 ```
 
-But most users should probably use the pre-compile binary available on
+*But most users should probably use the pre-compile binary available on
 the GLIS share-point site (it will be of the form:
-"glisDbTools_yyyy.mm.dd.zip").  If are unable to find a recent
-version, contact the package author or one of the GLIS administrators.
+"glisDbTools_yyyy.mm.dd.zip")*.  If are unable to find a recent
+version, contact the package author or one of the Lake Representatives.
 
 ## Creesys 4.1 to GLIS Template
 
