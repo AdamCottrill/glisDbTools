@@ -7,3 +7,4 @@
 build/*
 scratch.R
 *.accdb
+*.laccdb

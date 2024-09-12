@@ -9,7 +9,7 @@ test_that("fetch_sql stops for nonexistant file", {
   )
   sql <- "select * from foo;"
 
-  expect_error(fetch_sql(sql, filename), message)
+  expect_error(fetch_sql(filename, sql), message)
 })
 
 
@@ -25,6 +25,6 @@ test_that("fetch_sql stops for bad extension", {
 
   sql <- "select * from foo;"
   # not sure why we need to do this:
-  err <- expect_error(fetch_sql(sql, filename))
+  err <- expect_error(fetch_sql(filename, sql))
   expect_equal(err$message, message)
 })

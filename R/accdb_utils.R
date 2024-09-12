@@ -107,18 +107,19 @@ check_accdb <- function(src_db, exists = TRUE) {
 ##' @return A dataframe containing the data returned by the sql
 ##'   statement.
 ##' @author R. Adam Cottrill
-fetch_sql <- function(sql, src_db, payload = TRUE) {
+fetch_sql <- function(src_db, sql, payload = TRUE) {
   check_accdb(src_db)
   if (payload) {
     conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case = "nochange")
-    dat <- RODBC::sqlQuery(conn, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = "")
+
+    dat <- try(RODBC::sqlQuery(conn, sql, as.is = TRUE, stringsAsFactors = FALSE, na.strings = ""))
     RODBC::odbcClose(conn)
-    return(dat)
   } else {
     conn <- RODBC::odbcConnectAccess2007(src_db, uid = "", pwd = "", case = "nochange")
-    RODBC::sqlQuery(conn, sql)
+    dat <- try(RODBC::sqlQuery(conn, sql))
     RODBC::odbcClose(conn)
   }
+  return(dat)
 }
 
 ##' Validate a project code
@@ -690,7 +691,7 @@ clear_table_data <- function(db, table_name, prj_cds = NULL) {
     )
   }
 
-  payload <- fetch_sql(sql, db, payload = FALSE)
+  payload <- fetch_sql(db, sql, payload = FALSE)
   return(payload)
 }
 
@@ -847,7 +848,7 @@ merge_templates <- function(dbX, dbY) {
 ##'   the data? Defaults to TRUE.
 ##' @return NULL
 ##' @author R. Adam Cottrill
-unmerge_templates <- function(dbX, dbY, prompt=TRUE) {
+unmerge_templates <- function(dbX, dbY, prompt = TRUE) {
   # y will be revoved from X based on project code
   check_accdb(dbX)
   check_accdb(dbY)
@@ -858,7 +859,7 @@ unmerge_templates <- function(dbX, dbY, prompt=TRUE) {
 
   # get the list of project codes from our source db:
   sql <- "select distinct [PRJ_CD] from [FN011]"
-  prj_cds <- fetch_sql(sql, dbY)
+  prj_cds <- fetch_sql(dbY, sql)
 
   if (prompt) {
     project_codes <- paste0(sapply(prj_cds, function(x) sprintf("\t+ %s\n", x)), collapse = "")

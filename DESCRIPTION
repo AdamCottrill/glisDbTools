@@ -1,6 +1,6 @@
 Package: glisDbTools
 Title: A collection of utility functions for working with GLIS upload templates
-Version: 2024.09.09
+Version: 2024.09.12
 Authors@R:
     person("Adam", "Cottrill", , "adam.cottrill@ontario.ca", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -12,7 +12,9 @@ RoxygenNote: 7.2.1
 Imports:
     glfishr,
     graphics,
+    leaflet,
     RODBC,
+    sf,
     stats,
     utils,
     waldo

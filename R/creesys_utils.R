@@ -254,7 +254,7 @@ get_creesys_fn011 <- function(prj_cd, src_db) {
         WHERE PRJ_CD='%s';"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -281,7 +281,7 @@ get_creesys_fn022 <- function(prj_cd, src_db) {
     ORDER BY PRJ_CD, SSN;
     "
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -307,7 +307,7 @@ get_creesys_fn023 <- function(prj_cd, src_db) {
         ORDER BY PRJ_CD, SSN, DTP;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -333,7 +333,7 @@ get_creesys_fn024 <- function(prj_cd, src_db) {
         ORDER BY PRJ_CD, SSN, DTP, PRD;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -360,7 +360,7 @@ get_creesys_fn025 <- function(prj_cd, src_db) {
         "
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -387,7 +387,7 @@ get_creesys_fn026 <- function(prj_cd, src_db) {
         ORDER BY PRJ_CD, Space;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -414,7 +414,7 @@ get_creesys_fn026_subspace <- function(prj_cd, src_db) {
         ORDER BY PRJ_CD, Space;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -438,7 +438,7 @@ get_creesys_fn028 <- function(prj_cd, src_db) {
         WHERE PRJ_CD='%s';"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -466,7 +466,7 @@ get_creesys_fn111 <- function(prj_cd, src_db) {
         ORDER BY PRJ_CD, SAMA, STRATUM;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -491,7 +491,7 @@ get_creesys_fn112 <- function(prj_cd, src_db) {
         ORDER BY PRJ_CD, SAMA, ATYTM0;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -566,7 +566,7 @@ get_creesys_fn121 <- function(prj_cd, src_db) {
             FN121.SAMA;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -592,7 +592,7 @@ get_creesys_fn123 <- function(prj_cd, src_db) {
         "
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -622,7 +622,7 @@ get_creesys_fn125 <- function(prj_cd, src_db) {
         "
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -646,7 +646,7 @@ get_creesys_fn125_tags <- function(prj_cd, src_db) {
           WHERE PRJ_CD='%s' AND TAGID Is Not Null And TAGID<>'0';"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -674,7 +674,7 @@ get_creesys_fn125_lamprey <- function(prj_cd, src_db) {
           (PRJ_CD='%1$s' AND XLAM Is Not Null);"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -702,7 +702,7 @@ get_creesys_fn126 <- function(prj_cd, src_db) {
         ORDER BY PRJ_CD, Trim(Str([FN126].[SAM])), EFF, Spc, '00', FISH, FOOD;"
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -759,7 +759,7 @@ get_creesys_fn125_ages <- function(prj_cd, src_db) {
      "
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -803,7 +803,7 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
      "
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -825,7 +825,7 @@ get_creesys_questions <- function(prj_cd, src_db) {
 
 
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -849,7 +849,7 @@ get_creesys_answers <- function(prj_cd, src_db) {
      WHERE PRJ_CD='%s';
      "
   stmt <- format_prj_cd_sql(sql, prj_cd)
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 

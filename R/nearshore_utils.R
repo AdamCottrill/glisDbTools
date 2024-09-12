@@ -282,7 +282,7 @@ get_nearshore_fn011 <- function(prj_cds, src_db) {
     sql,
     project_codes
   )
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -314,7 +314,7 @@ get_nearshore_fn022 <- function(prj_cds, src_db) {
     sql,
     project_codes
   )
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -355,7 +355,7 @@ get_nearshore_fn026 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -399,7 +399,7 @@ get_nearshore_fn026_subspace <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -445,7 +445,7 @@ get_nearshore_fn028 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -537,7 +537,7 @@ get_nearshore_fn121 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -575,7 +575,7 @@ get_nearshore_fn122 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -608,7 +608,7 @@ get_nearshore_fn123 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -666,7 +666,7 @@ get_nearshore_fn125 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -705,7 +705,7 @@ get_nearshore_fn125_tags <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -733,7 +733,7 @@ get_nearshore_fn125_xtags <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -768,7 +768,7 @@ get_nearshore_fn125_lamprey <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
 
@@ -832,7 +832,7 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
 
   dat <- dat[with(dat, order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, FOOD)), ]
   return(dat)
@@ -899,7 +899,7 @@ get_nearshore_fn125_ages <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
 
   return(dat)
 }
@@ -950,7 +950,7 @@ get_nearshore_fn127 <- function(prj_cds, src_db) {
     project_codes
   )
 
-  dat <- fetch_sql(stmt, src_db)
+  dat <- fetch_sql(src_db, stmt)
 
   return(dat)
 }

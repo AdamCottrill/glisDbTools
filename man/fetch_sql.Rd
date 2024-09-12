@@ -4,16 +4,16 @@
 \alias{fetch_sql}
 \title{Fetch data from src database.}
 \usage{
-fetch_sql(sql, src_db, payload = TRUE)
+fetch_sql(src_db, sql, payload = TRUE)
 }
 \arguments{
-\item{sql}{\itemize{
-\item the string to be exectuted.
-}}
-
 \item{src_db}{\itemize{
 \item a string representing the path to the src
 database.
+}}
+
+\item{sql}{\itemize{
+\item the string to be exectuted.
 }}
 
 \item{payload}{\itemize{
