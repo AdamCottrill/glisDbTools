@@ -65,7 +65,7 @@ get_time_fields <- function() {
 ##' my_date <- "2024-08-12 09:49:15"
 ##' my_time <- get_time(my_date)
 ##'
-##' get_time(Sys.time())
+##' #get_time(Sys.time())
 ##'
 get_time <- function(timestamp) {
   # extract time from date/time string

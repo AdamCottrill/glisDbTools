@@ -123,13 +123,13 @@ glis_db <- "~/LHA_IA22_821_glis.accdb"
 nearshore_db <- "~/LHA_IA22_821_nearshore.accdb"
 
 # we can get a list of tables in each template:
-glis_tables <- get_tablenames(glis)
-nearshore_tables <- get_tablenames(nearshore)
+glis_tables <- get_tablenames(glis_db)
+nearshore_tables <- get_tablenames(nearshore_db)
 
 # By default the list of tables in each database should be exactly the
 # same, but will contain extra elements if you have added new tables
 # to one or both of the templates.
-compare(glis_tables, nearshore_tables)
+waldo::compare(glis_tables, nearshore_tables)
 
 
 # the compare_tables() function will compare the structure and
