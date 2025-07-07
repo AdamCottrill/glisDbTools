@@ -36,7 +36,6 @@ used to fill the first set of points defaults to 'blue'.
 \item{radius}{\itemize{
 \item An optional integer representing the size of the
 plotting symbol.  Defaults to 3.
-@export
 }}
 }
 \value{

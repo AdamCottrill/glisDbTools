@@ -1,3 +1,4 @@
 ^LICENSE\.md$
 build/*
+sandbox/*
 scratch.R

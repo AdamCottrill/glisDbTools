@@ -28,20 +28,71 @@
 ##' @return a plot
 ##' @export
 ##' @author R. Adam Cottrill
-procval_plot <- function(src, spc, grp = "00",
-                         what = c("FLEN", "TLEN", "RWT", "Kflen", "Ktlen"),
-                         glis_fish = NULL) {
+procval_plot <- function(
+  src,
+  spc,
+  grp = "00",
+  what = c("FLEN", "TLEN", "RWT", "Kflen", "Ktlen"),
+  glis_fish = NULL
+) {
   what <- match.arg(what)
 
-  sql012 <- sprintf("SELECT * from FN012 where [spc] = '%s' AND GRP='%s'", spc, grp)
+  sql012 <- sprintf(
+    "SELECT * from FN012 where [spc] = '%s' AND GRP='%s'",
+    spc,
+    grp
+  )
   species_attributes <- fetch_sql(src, sql012)
 
-  sql125 <- sprintf("SELECT [PRJ_CD], [SAM], [EFF], [SPC], [GRP], [FISH], [FLEN], [TLEN], [RWT] from [FN125] where [spc] ='%s' AND GRP='%s'", spc, grp)
+  # check for number of fn012 records
+  # issue warn if  no with spc= and grp= could be found the target database.
+
+  if (nrow(species_attributes) == 0) {
+    msg <- sprintf(
+      "No records were returned from the FN012 table of
+        the target database for spc='%s' and grp='%s'",
+      spc,
+      grp
+    )
+    stop(msg)
+  }
+
+  sql125 <- sprintf(
+    "SELECT [PRJ_CD], [SAM], [EFF], [SPC], [GRP], [FISH],
+                     [FLEN], [TLEN], [RWT]
+                     from [FN125] where [spc] ='%s' AND GRP='%s'",
+    spc,
+    grp
+  )
   fish <- fetch_sql(src, sql125)
+
+  if (nrow(fish) == 0) {
+    msg <- sprintf(
+      "No records were returned from the FN125 table of
+       the target database for spc='%s' and grp='%s'",
+      spc,
+      grp
+    )
+    stop(msg)
+  }
+
   fish$attr <- NA
 
+  # check for number of fn125 records
+  # issue warn if  no with spc= and grp= could be found the target database.
+
   if (!is.null(glis_fish)) {
-    glis_fish <- glis_fish[, c("PRJ_CD", "SAM", "EFF", "SPC", "GRP", "FISH", "FLEN", "TLEN", "RWT")]
+    glis_fish <- glis_fish[, c(
+      "PRJ_CD",
+      "SAM",
+      "EFF",
+      "SPC",
+      "GRP",
+      "FISH",
+      "FLEN",
+      "TLEN",
+      "RWT"
+    )]
     glis_fish$attr <- "reference"
     fish <- rbind(fish, glis_fish)
   }
@@ -58,7 +109,6 @@ procval_plot <- function(src, spc, grp = "00",
     bioattr_plot(fish, species_attributes, what)
   }
 }
-
 
 
 ##' Two pannel plot of Condition Factor
@@ -81,39 +131,53 @@ procval_plot <- function(src, spc, grp = "00",
 ##'   "Ktlen" Fulton's K calculated using Total Length.
 ##' @return - plot
 ##' @author R. Adam Cottrill
-condition_plots <- function(fish, species_attributes, what = c("Kflen", "Ktlen")) {
+condition_plots <- function(
+  fish,
+  species_attributes,
+  what = c("Kflen", "Ktlen")
+) {
   what <- match.arg(what)
   what <- toupper(gsub("K", "", what))
 
   var_idx <- which(names(fish) == what)
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish$K) &
-    fish$K < species_attributes$K_MAX_WARN &
-    fish$K > species_attributes$K_MIN_WARN] <- "ok"
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish$K) &
+      fish$K < species_attributes$K_MAX_WARN &
+      fish$K > species_attributes$K_MIN_WARN
+  ] <- "ok"
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish$K) &
-    fish$K >= species_attributes$K_MAX_WARN &
-    fish$K < species_attributes$K_MAX_ERROR] <- "too_big"
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish$K) &
+      fish$K >= species_attributes$K_MAX_WARN &
+      fish$K < species_attributes$K_MAX_ERROR
+  ] <- "too_big"
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish$K) &
-    fish$K >= species_attributes$K_MAX_ERROR] <- "way_too_big"
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish$K) &
+      fish$K >= species_attributes$K_MAX_ERROR
+  ] <- "way_too_big"
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish$K) &
-    fish$K <= species_attributes$K_MIN_WARN &
-    fish$K > species_attributes$K_MIN_ERROR] <- "too_small"
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish$K) &
+      fish$K <= species_attributes$K_MIN_WARN &
+      fish$K > species_attributes$K_MIN_ERROR
+  ] <- "too_small"
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish$K) &
-    fish$K <= species_attributes$K_MIN_ERROR] <- "way_too_small"
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish$K) &
+      fish$K <= species_attributes$K_MIN_ERROR
+  ] <- "way_too_small"
 
   graphics::split.screen(c(1, 2))
   graphics::screen(1) #
 
-  with(fish, plot(stats::density(K, na.rm = T), main = "Condition Factor"))
+  with(fish, plot(stats::density(K, na.rm = TRUE), main = "Condition Factor"))
 
   # density of observed K
 
@@ -129,7 +193,11 @@ condition_plots <- function(fish, species_attributes, what = c("Kflen", "Ktlen")
   graphics::abline(v = species_attributes$K_MIN_ERROR, col = "navy")
 
   graphics::abline(v = species_attributes$K_MAX_WARN, col = "orange", lty = 3)
-  graphics::abline(v = species_attributes$K_MIN_WARN, col = "steelblue", lty = 3)
+  graphics::abline(
+    v = species_attributes$K_MIN_WARN,
+    col = "steelblue",
+    lty = 3
+  )
 
   graphics::screen(2)
 
@@ -139,9 +207,12 @@ condition_plots <- function(fish, species_attributes, what = c("Kflen", "Ktlen")
   main_label <- sprintf("RWT vs %s", what)
   xlabel <- sprintf("%s (mm)", what)
   plot(
-    y = fish$RWT, x = fish[, var_idx],
-    xlab = xlabel, ylab = "RWT (g)",
-    type = "n", main = main_label
+    y = fish$RWT,
+    x = fish[, var_idx],
+    xlab = xlabel,
+    ylab = "RWT (g)",
+    type = "n",
+    main = main_label
   )
 
   # a factory function to return a curve with the given condition parameter:
@@ -150,33 +221,52 @@ condition_plots <- function(fish, species_attributes, what = c("Kflen", "Ktlen")
     return(fct)
   }
 
-
-  # kmin_err <- function(x) (species_attributes$K_MIN_ERROR * x^3) / 100000
   kmin_err <- kcurve(species_attributes$K_MIN_ERROR)
   graphics::curve(kmin_err, add = TRUE, col = "navy")
 
-  # kmin_warn <- function(x) (species_attributes$K_MIN_WARN * x^3) / 100000
   kmin_warn <- kcurve(species_attributes$K_MIN_WARN)
   graphics::curve(kmin_warn, add = TRUE, col = "steelblue", lty = 3)
 
-  # kmax_err <- function(x) (species_attributes$K_MAX_ERROR * x^3) / 100000
   kmax_err <- kcurve(species_attributes$K_MAX_ERROR)
   graphics::curve(kmax_err, add = TRUE, col = "red")
 
-  # kmax_warn <- function(x) (species_attributes$K_MAX_WARN * x^3) / 100000
   kmax_warn <- kcurve(species_attributes$K_MAX_WARN)
   graphics::curve(kmax_warn, add = TRUE, col = "orange", lty = 3)
 
-
-  graphics::points(fish[fish$attr == "reference", var_idx], fish$RWT[fish$attr == "reference"], col = "grey")
-  graphics::points(fish[fish$attr == "ok", var_idx], fish$RWT[fish$attr == "ok"], col = "black")
-  graphics::points(fish[fish$attr == "too_big", var_idx], fish$RWT[fish$attr == "too_big"], col = "orange", pch = 19)
-  graphics::points(fish[fish$attr == "way_too_big", var_idx], fish$RWT[fish$attr == "way_too_big"], col = "red", pch = 8)
-  graphics::points(fish[fish$attr == "too_small", var_idx],
-    fish$RWT[fish$attr == "too_small"],
-    col = "steelblue", pch = 19
+  graphics::points(
+    fish[fish$attr == "reference", var_idx],
+    fish$RWT[fish$attr == "reference"],
+    col = "grey"
   )
-  graphics::points(fish[fish$attr == "way_too_small", var_idx], fish$RWT[fish$attr == "way_too_small"], col = "navy", pch = 8)
+  graphics::points(
+    fish[fish$attr == "ok", var_idx],
+    fish$RWT[fish$attr == "ok"],
+    col = "black"
+  )
+  graphics::points(
+    fish[fish$attr == "too_big", var_idx],
+    fish$RWT[fish$attr == "too_big"],
+    col = "orange",
+    pch = 19
+  )
+  graphics::points(
+    fish[fish$attr == "way_too_big", var_idx],
+    fish$RWT[fish$attr == "way_too_big"],
+    col = "red",
+    pch = 8
+  )
+  graphics::points(
+    fish[fish$attr == "too_small", var_idx],
+    fish$RWT[fish$attr == "too_small"],
+    col = "steelblue",
+    pch = 19
+  )
+  graphics::points(
+    fish[fish$attr == "way_too_small", var_idx],
+    fish$RWT[fish$attr == "way_too_small"],
+    col = "navy",
+    pch = 8
+  )
 
   graphics::close.screen(all = TRUE)
 }
@@ -206,29 +296,39 @@ condition_plots <- function(fish, species_attributes, what = c("Kflen", "Ktlen")
 ##'
 ##' @return plot
 ##' @author R. Adam Cottrill
-bioattr_plot <- function(fish, species_attributes, what = c("FLEN", "TLEN", "RWT")) {
+bioattr_plot <- function(
+  fish,
+  species_attributes,
+  what = c("FLEN", "TLEN", "RWT")
+) {
   what <- match.arg(what)
 
-  # get the column numbers for data we want to plot depending on what has been selected
+  # get the column numbers for data we want to plot depending on
+  # what has been selected
   var_idx <- which(names(fish) == what)
   min_idx <- which(names(species_attributes) == sprintf("%s_MIN", what))
   max_idx <- which(names(species_attributes) == sprintf("%s_MAX", what))
 
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish[, var_idx]) &
+      fish[, var_idx] <= species_attributes[, max_idx] &
+      fish[, var_idx] >= species_attributes[, min_idx]
+  ] <- "ok"
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish[, var_idx]) &
-    fish[, var_idx] <= species_attributes[, max_idx] &
-    fish[, var_idx] >= species_attributes[, min_idx]] <- "ok"
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish[, var_idx]) &
+      fish[, var_idx] > species_attributes[, max_idx]
+  ] <- "too_big"
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish[, var_idx]) &
-    fish[, var_idx] > species_attributes[, max_idx]] <- "too_big"
+  fish$attr[
+    is.na(fish$attr) &
+      !is.na(fish[, var_idx]) &
+      fish[, var_idx] < species_attributes[, min_idx]
+  ] <- "too_small"
 
-  fish$attr[is.na(fish$attr) &
-    !is.na(fish[, var_idx]) &
-    fish[, var_idx] < species_attributes[, min_idx]] <- "too_small"
-
-  plot(stats::density(fish[, var_idx], na.rm = T), main = what)
+  plot(stats::density(fish[, var_idx], na.rm = TRUE), main = what)
 
   graphics::rug(fish[fish$attr == "reference", var_idx], col = "grey")
   graphics::rug(fish[fish$attr == "ok", var_idx], col = "black")
@@ -238,9 +338,6 @@ bioattr_plot <- function(fish, species_attributes, what = c("FLEN", "TLEN", "RWT
   graphics::abline(v = species_attributes[1, min_idx], col = "red", lty = 3)
   graphics::abline(v = species_attributes[1, max_idx], col = "red", lty = 3)
 }
-
-
-
 
 
 ##' Map spatial data in from table in a GLIS template
@@ -266,25 +363,32 @@ bioattr_plot <- function(fish, species_attributes, what = c("FLEN", "TLEN", "RWT
 ##'   used to fill the first set of points defaults to 'blue'.
 ##' @param radius - An optional integer representing the size of the
 ##'   plotting symbol.  Defaults to 3.
-##'  @export
-##'
+##' @export
 ##' @return leaflet map
 ##' @author R. Adam Cottrill
 map_table_points <- function(
-    src_db, table_name = c("FN026", "FN026_Subspace", "FN121", "FN121_GPS_Tracks"),
-    fill0 = "red", fill1 = "blue", radius = 3) {
+  src_db,
+  table_name = c("FN026", "FN026_Subspace", "FN121", "FN121_GPS_Tracks"),
+  fill0 = "red",
+  fill1 = "blue",
+  radius = 3
+) {
   table_name <- match.arg(table_name)
 
-  mymap <- switch(table_name,
+  mymap <- switch(
+    table_name,
     FN026 = fn026_map(src_db, fill0 = fill0, radius = radius),
     FN026_Subspace = fn026_subspace_map(src_db, fill0 = fill0, radius = radius),
     FN121 = fn121_map(src_db, fill0 = fill0, fill1 = fill1, radius = radius),
-    FN121_GPS_Tracks = fn121_gps_tracks_map(src_db, fill0 = fill0, radius = radius)
+    FN121_GPS_Tracks = fn121_gps_tracks_map(
+      src_db,
+      fill0 = fill0,
+      radius = radius
+    )
   )
 
   return(mymap)
 }
-
 
 
 ##' Plot FN026 Spatial Data contained in a populated GLIS Template
@@ -313,6 +417,7 @@ fn026_map <- function(src_db, fill0 = "red", radius = 3) {
   pts <- pts[, c("SLUG", "DD_LAT", "DD_LON")]
   pts <- check_points(pts)
   map <- point_map(pts, fill0 = fill0, radius = radius)
+  return(map)
 }
 
 
@@ -342,9 +447,8 @@ fn026_subspace_map <- function(src_db, fill0 = "red", radius = 3) {
   pts <- pts[, c("SLUG", "DD_LAT", "DD_LON")]
   pts <- check_points(pts)
   map <- point_map(pts, fill0 = fill0, radius = radius)
+  return(map)
 }
-
-
 
 
 ##' Plot FN121 Spatial Data contained in a populated GLIS Template
@@ -376,7 +480,10 @@ fn121_map <- function(src_db, fill0 = "red", fill1 = "blue", radius = 3) {
   pts <- fetch_sql(src_db, sql)
 
   if (inherits(pts, "character")) {
-    msg <- "Something went wrong. Did you try to plot FN121 points for a creel project?\n"
+    msg <- paste0(
+      "Something went wrong. ",
+      "Did you try to plot FN121 points for a creel project?\n"
+    )
     stop(msg, pts)
   }
 
@@ -387,8 +494,9 @@ fn121_map <- function(src_db, fill0 = "red", fill1 = "blue", radius = 3) {
 
   pt0s <- check_points(pt0s)
   pt1s <- check_points(pt1s)
-  # check_point_pairs(pt0s, pt1s)
+
   map <- point_map(pt0s, pt1s, fill0 = fill0, fill1 = fill1, radius = radius)
+  return(map)
 }
 
 
@@ -417,7 +525,10 @@ fn121_gps_tracks_map <- function(src_db, fill0 = "red", radius = 3) {
   pts <- fetch_sql(src_db, sql)
 
   if (inherits(pts, "character")) {
-    msg <- "Something went wrong. Did you try to plot FN121_GPS_Track points for a creel project?\n"
+    msg <- paste0(
+      "Something went wrong. Did you try to plot ",
+      "FN121_GPS_Track points for a creel project?\n"
+    )
     stop(msg, pts)
   }
 
@@ -425,6 +536,7 @@ fn121_gps_tracks_map <- function(src_db, fill0 = "red", radius = 3) {
   pts <- pts[, c("SLUG", "DD_LAT", "DD_LON")]
   pts <- check_points(pts)
   map <- point_map(pts, fill0 = fill0, radius = radius)
+  return(map)
 }
 
 
@@ -470,14 +582,19 @@ check_points <- function(pts) {
   # plotted on the map:
   MIN_LAT <- 40.0
   MAX_LAT <- 50.0
-  MIN_LONG <- -85.0
+  MIN_LONG <- -90.0
   MAX_LONG <- -74.0
 
-  problems <- pts$SLUG[is.na(pts[, 2]) | is.na(pts[, 3]) |
-    # bad lat:
-    pts[, 2] < MIN_LAT | pts[, 2] > MAX_LAT |
-    # bad lon:
-    pts[, 3] < MIN_LONG | pts[, 3] > MAX_LONG]
+  problems <- pts$SLUG[
+    is.na(pts[, 2]) |
+      is.na(pts[, 3]) |
+      # bad lat:
+      pts[, 2] < MIN_LAT |
+      pts[, 2] > MAX_LAT |
+      # bad lon:
+      pts[, 3] < MIN_LONG |
+      pts[, 3] > MAX_LONG
+  ]
 
   if (length(problems) > 0) {
     msg <- "There was a problem with the following points:\n"
@@ -510,8 +627,12 @@ check_point_pairs <- function(ptsA, ptsB) {
   # B. Issue a warning if there are any unmatched pairs.
   pts <- merge(ptsA, ptsB, by = "SLUG")
 
-  problems <- pts$SLUG[is.na(pts$DD_LAT0) | is.na(pts$DD_LON0) |
-    is.na(pts$DD_LAT1) | is.na(pts$DD_LON1)]
+  problems <- pts$SLUG[
+    is.na(pts$DD_LAT0) |
+      is.na(pts$DD_LON0) |
+      is.na(pts$DD_LAT1) |
+      is.na(pts$DD_LON1)
+  ]
 
   if (length(problems) > 0) {
     msg <- "There was a problem with the following point pairs:\n"
@@ -550,7 +671,13 @@ check_point_pairs <- function(ptsA, ptsB) {
 ##'   plotting symbol.  Defaults to 3.
 ##' @return leaflet plot
 ##' @author R. Adam Cottrill
-point_map <- function(pt0s, pt1s = NULL, fill0 = "red", fill1 = "blue", radius = 3) {
+point_map <- function(
+  pt0s,
+  pt1s = NULL,
+  fill0 = "red",
+  fill1 = "blue",
+  radius = 3
+) {
   map <- leaflet::leaflet()
   map <- leaflet::addTiles(map)
 
@@ -570,7 +697,8 @@ point_map <- function(pt0s, pt1s = NULL, fill0 = "red", fill1 = "blue", radius =
     }
   }
 
-  map <- leaflet::addCircleMarkers(map,
+  map <- leaflet::addCircleMarkers(
+    map,
     popup = pt0s[, 1],
     lat = pt0s[, 2],
     lng = pt0s[, 3],
@@ -582,7 +710,8 @@ point_map <- function(pt0s, pt1s = NULL, fill0 = "red", fill1 = "blue", radius =
   )
 
   if (!is.null(pt1s)) {
-    map <- leaflet::addCircleMarkers(map,
+    map <- leaflet::addCircleMarkers(
+      map,
       popup = pt1s[, 1],
       lat = pt1s[, 2],
       lng = pt1s[, 3],
