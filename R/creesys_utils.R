@@ -1,19 +1,20 @@
 ##' Migrate a creel project from Creesys 4.1 to GLIS Creel Template
 ##'
 ##' This function is the workhorse of the UGLMU creel mapper. It
-##' migrates the data for a single project into a creel tempalte
-##' database that can then be run throught process validate and
-##' uploaded to creel portal.  It depends on an assocaited ms access
+##' migrates the data for a single project into a creel template
+##' database that can then be run through Process Validate and
+##' uploaded to creel portal.  It depends on an associated ms access
 ##' file that contains queries to make most of the transformations.
 ##' These queries are parameterized to accept a prj_cd string, and are
 ##' all named "get_tablename".
-##' @title Poplate Template from Creesys
+##' @title Populate Template from Creesys
 ##' @param prj_cd - the project code of the creel we want to migrate
 ##'   into a template database.
 ##' @param src_dbase - path to the database with mapping queries
 ##' @param template_db - path to a copy of the current GLIS creel
 ##'   template
-##' @param lake - abbreviation that will be used to populate
+##' @param lake - the Lake abbreviation that will be used to populate
+##'   the F011 table
 ##' @param verbose - should the append statements with submitted the
 ##'   the verbose flag.  Default is FALSE, but TRUE can be useful to
 ##'   debug database errors.
@@ -22,7 +23,13 @@
 ##' @export
 ##' @return NULL
 ##' @author R. Adam Cottrill
-creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", verbose = FALSE, overwrite = FALSE) {
+creesys_to_template <- function(
+    prj_cd,
+    src_dbase,
+    template_db,
+    lake = "HU",
+    verbose = FALSE,
+    overwrite = FALSE) {
   build_dir <- file.path(getwd(), "build")
   if (!dir.exists(build_dir)) {
     dir.create(build_dir)
@@ -34,12 +41,15 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
 
   fn011 <- get_creesys_fn011(prj_cd, src_dbase)
 
-
   if (nrow(fn011) == 0) {
     msg <- sprintf("Project with project code '%s' could not be found.", prj_cd)
     stop(msg)
   } else {
-    msg <- sprintf("Popuplate Template Database for:\n '%s' (%s)\n", fn011$PRJ_NM, prj_cd)
+    msg <- sprintf(
+      "Popuplate Template Database for:\n '%s' (%s)\n",
+      fn011$PRJ_NM,
+      prj_cd
+    )
     cat(msg)
     cat(sprintf("\tSC011 records: %s\n", nrow(fn011)))
   }
@@ -54,7 +64,6 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
   # Lake Huron still does not have default fn012 values for creels, so
   # we will use one from on of the other lakes instead, and select rows
   # based on fish caught in this creel:
-
 
   default_sc012 <- glfishr::get_SC012_Protocol(list(lake = "ER"))
   default_sc012$LAKE <- NULL
@@ -98,13 +107,11 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
   cat(sprintf("\tSC028 records: %s\n", nrow(fn028)))
   append_data(trg_db, "FN028", fn028, verbose = verbose)
 
-
   fn111 <- get_creesys_fn111(prj_cd, src_dbase)
   fn111$DATE <- as.Date(fn111$DATE, format = date_format)
   fn111$SAMTM0 <- get_time(fn111$SAMTM0)
   cat(sprintf("\tSC111 records: %s\n", nrow(fn111)))
   append_data(trg_db, "FN111", fn111, verbose = verbose)
-
 
   fn112 <- get_creesys_fn112(prj_cd, src_dbase)
   cat(sprintf("\tSC112 records: %s\n", nrow(fn112)))
@@ -112,11 +119,10 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
   fn112$ATYTM1 <- get_time(fn112$ATYTM1)
   append_data(trg_db, "FN112", fn112, verbose = verbose)
 
-
-
   fn121 <- get_creesys_fn121(prj_cd, src_dbase)
   cat(sprintf("\tSC121 records: %s\n", nrow(fn121)))
-  fn121$ITVSEQ <- ifelse(is.na(fn121$ITVSEQ),
+  fn121$ITVSEQ <- ifelse(
+    is.na(fn121$ITVSEQ),
     as.numeric(rownames(fn121)),
     fn121$ITVSEQ
   )
@@ -175,17 +181,23 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
     append_data(trg_db, "FN126", fn126, verbose = verbose)
   }
 
-
   # get the FN125 preferred age data:
   fn125_ages <- get_creesys_fn125_ages(prj_cd, src_dbase)
 
-
   if (file.exists("xagem2agemt.csv")) {
-    # update any missing agemt values from their xagem using the values in this csv:
+    # update any missing agemt values from their xagem using
+    # the values in this csv:
     xagem2agemt <- utils::read.csv("xagem2agemt.csv")
-    fn125_ages <- merge(fn125_ages, xagem2agemt, by = "XAGEM", all.x = T)
-    fn125_ages$AGEMT <- ifelse(!is.na(fn125_ages$AGEMT.x), fn125_ages$AGEMT.x, fn125_ages$AGEMT.y)
-    fn125_ages <- fn125_ages[, !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))]
+    fn125_ages <- merge(fn125_ages, xagem2agemt, by = "XAGEM", all.x = TRUE)
+    fn125_ages$AGEMT <- ifelse(
+      !is.na(fn125_ages$AGEMT.x),
+      fn125_ages$AGEMT.x,
+      fn125_ages$AGEMT.y
+    )
+    fn125_ages <- fn125_ages[
+      ,
+      !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))
+    ]
   } else {
     msg <- "Unable to find 'xagem2agemt.csv' skipping FN125 agemt updates."
     message(msg)
@@ -216,23 +228,32 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
     append_data(trg_db, "AnglerAnswers", angler_answers, verbose = verbose)
   }
 
-
   if (toupper(fn023$DTP_NM[fn023$DTP == 1][1]) != "WEEKDAY") {
-    message("Looks like weekend and weekday daytypes are switched.\nSwitching them for you.")
+    msg <- paste0(
+      "Looks like weekend and weekday daytypes are switched.",
+      "\nSwitching them for you."
+    )
+    message(msg)
     switch_and_update_dtp(trg_db)
   }
 
-  populate_readme(trg_db, src_dbase)
+  msg <- sprintf(
+    "Template populated from %s on %s",
+    basename(src_dbase),
+    Sys.time()
+  )
+  update_readme(trg_db, msg)
 
   msg <- paste0(
     sprintf(
-      "Done. The populated database can be found here: %s.  \n", trg_db
+      "Done. The populated database can be found here: %s.  \n",
+      trg_db
     ),
-    "You should be able to check it with Process Validate and upload to creel portal.\n"
+    "You should be able to check it with Process Validate and upload ",
+    "to creel portal.\n"
   )
   message(msg)
 }
-
 
 
 ##' Fetch FN011 data from Creesys Database
@@ -249,7 +270,8 @@ creesys_to_template <- function(prj_cd, src_dbase, template_db, lake = "HU", ver
 get_creesys_fn011 <- function(prj_cd, src_db) {
   # a function replace the Get_FN011 query from the mapper database.
 
-  sql <- "SELECT YEAR, PRJ_CD, CONTMETH, PRJ_DATE0, PRJ_DATE1, PRJ_LDR, PRJ_NM, COMMENT0
+  sql <- "SELECT YEAR, PRJ_CD, CONTMETH, PRJ_DATE0, PRJ_DATE1,
+        PRJ_LDR, PRJ_NM, COMMENT0
         FROM fn011
         WHERE PRJ_CD='%s';"
 
@@ -273,7 +295,6 @@ get_creesys_fn011 <- function(prj_cd, src_db) {
 get_creesys_fn022 <- function(prj_cd, src_db) {
   # a function replace the Get_FN022 query from the mapper database.
 
-
   sql <- "SELECT PRJ_CD, SSN, SSN_DATE0, SSN_DATE1, SSN_DES
     FROM FN022
     GROUP BY PRJ_CD, SSN, SSN_DATE0, SSN_DATE1, SSN_DES
@@ -284,7 +305,6 @@ get_creesys_fn022 <- function(prj_cd, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN023 data from Creesys Database
@@ -310,7 +330,6 @@ get_creesys_fn023 <- function(prj_cd, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN024 data from Creesys Database
@@ -365,8 +384,6 @@ get_creesys_fn025 <- function(prj_cd, src_db) {
 }
 
 
-
-
 ##' Fetch FN026 data from Creesys Database
 ##'
 ##' This function will connect to the source database and extract the
@@ -390,7 +407,6 @@ get_creesys_fn026 <- function(prj_cd, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN026_subspace data from Creesys Database
@@ -441,7 +457,6 @@ get_creesys_fn028 <- function(prj_cd, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN111 data from Creesys Database
@@ -651,7 +666,6 @@ get_creesys_fn125_tags <- function(prj_cd, src_db) {
 }
 
 
-
 ##' Fetch FN125_lamprey data from Creesys Database
 ##'
 ##' This function will connect to the source database and extract the
@@ -677,7 +691,6 @@ get_creesys_fn125_lamprey <- function(prj_cd, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN126 data from Creesys Database
@@ -823,7 +836,6 @@ get_creesys_questions <- function(prj_cd, src_db) {
      FROM OPTIONQ
      WHERE PRJ_CD='%s';"
 
-
   stmt <- format_prj_cd_sql(sql, prj_cd)
   dat <- fetch_sql(src_db, stmt)
   return(dat)
@@ -854,9 +866,6 @@ get_creesys_answers <- function(prj_cd, src_db) {
 }
 
 
-
-
-
 ##' Standarize daytype encoding
 ##'
 ##' This function will switch the encoding used to indicate week-days
@@ -872,7 +881,12 @@ get_creesys_answers <- function(prj_cd, src_db) {
 ##' @author R. Adam Cottrill
 switch_and_update_dtp <- function(trg_db) {
   check_accdb(trg_db)
-  con <- RODBC::odbcConnectAccess2007(trg_db, uid = "", pwd = "", case = "nochange")
+  con <- RODBC::odbcConnectAccess2007(
+    trg_db,
+    uid = "",
+    pwd = "",
+    case = "nochange"
+  )
   switch_dtp(con, "FN023")
   switch_dtp(con, "FN024")
   switch_dtp(con, "FN025", "DTP1")
@@ -900,9 +914,6 @@ switch_dtp <- function(con, table, field = "DTP") {
   print(sprintf("updating %s", table))
   RODBC::sqlQuery(con, sql)
 }
-
-
-
 
 
 ##' Update the DTP value in the Stratum of the target table

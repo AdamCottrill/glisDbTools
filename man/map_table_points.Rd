@@ -6,7 +6,7 @@
 \usage{
 map_table_points(
   src_db,
-  table_name = c("FN026", "FN026_Subspace", "FN121", "FN121_GPS_Tracks"),
+  table_name = c("FN026", "FN026_Subspace", "FN121", "FN121_GPS_Tracks", "SC121"),
   fill0 = "red",
   fill1 = "blue",
   radius = 3
@@ -20,7 +20,9 @@ map_table_points(
 \item{table_name}{\itemize{
 \item one of "FN026", "FN026_Subspace", "FN121", or
 "FN121_GPS_Tracks".  If either of the FN121 tables are selected
-and the src_db is a creel_template an error will be thrown.
+and the src_db is a creel_template an error will be thrown.  The
+SC121 has been provided to plot spatial data collected during
+creel interviews.
 }}
 
 \item{fill0}{\itemize{
@@ -36,7 +38,6 @@ used to fill the first set of points defaults to 'blue'.
 \item{radius}{\itemize{
 \item An optional integer representing the size of the
 plotting symbol.  Defaults to 3.
-@export
 }}
 }
 \value{

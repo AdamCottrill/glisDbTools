@@ -323,7 +323,6 @@ procval_plot(db, "075", what = "TLEN")
   sources could be added in the future as needed (eg. - fishnet
   archive, Lake Superior FCIN master ect.)
 
-
 + prune_prj_cds - delete all of the records from the target database
   for the specified project code(s)
 

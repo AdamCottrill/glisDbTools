@@ -25,10 +25,16 @@
 ##' @export
 ##' @return NULL
 ##' @author R. Adam Cottrill
-nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, lake = "HU", verbose = FALSE, overwrite = FALSE) {
+nearshore_to_template <- function(
+    prj_cds,
+    src_dbase,
+    template_db,
+    fname = NA,
+    lake = "HU",
+    verbose = FALSE,
+    overwrite = FALSE) {
   # TODO:
   process_type <- 1
-
 
   build_dir <- file.path(getwd(), "build")
   if (!dir.exists(build_dir)) {
@@ -47,8 +53,6 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
     fname <- paste(tmp, collapse = "-")
     fname <- sprintf("%s.accdb", fname)
   }
-
-
 
   trg_db <- file.path(build_dir, fname)
 
@@ -93,7 +97,6 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
   cat(sprintf("\tFN026_subspace records: %s\n", nrow(fn026_subspace)))
   append_data(trg_db, "FN026_subspace", fn026_subspace, verbose = verbose)
 
-
   fn028 <- get_nearshore_fn028(prj_cds, src_dbase)
   cat(sprintf("\tFN028 records: %s\n", nrow(fn028)))
 
@@ -114,14 +117,17 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
 
   append_data(trg_db, "FN028", fn028, verbose = verbose)
 
-
   # Get list of gear/effort/process types from the glfishr package (requires VPN connection)
   gear_effort_process_types <- glfishr::get_gear_process_types()
 
-  gear_effort_process_types <- gear_effort_process_types[gear_effort_process_types$GR %in% fn028$GR, ]
-  cat(sprintf("\tgear_effort_process_types records: %s\n", nrow(gear_effort_process_types)))
+  gear_effort_process_types <- gear_effort_process_types[
+    gear_effort_process_types$GR %in% fn028$GR,
+  ]
+  cat(sprintf(
+    "\tgear_effort_process_types records: %s\n",
+    nrow(gear_effort_process_types)
+  ))
   append_data(trg_db, "Gear_Effort_Process_Types", gear_effort_process_types)
-
 
   fn121 <- get_nearshore_fn121(prj_cds, src_dbase)
   cat(sprintf("\tFN121 records: %s\n", nrow(fn121)))
@@ -137,12 +143,16 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
   fn121$EFFTM0 <- get_time(fn121$EFFTM0)
   fn121$EFFTM1 <- get_time(fn121$EFFTM1)
 
-
   fn122 <- get_nearshore_fn122(prj_cds, src_dbase)
   cat(sprintf("\tFN122 records: %s\n", nrow(fn122)))
 
   cat("\tUpdating FN121.PROCESS_TYPE....\n")
-  fn121 <- fn121_populate_process_type(fn028, fn121, fn122, gear_effort_process_types)
+  fn121 <- fn121_populate_process_type(
+    fn028,
+    fn121,
+    fn122,
+    gear_effort_process_types
+  )
   append_data(trg_db, "FN121", fn121, verbose = verbose)
 
   # now we can append the FN122 records:
@@ -178,7 +188,6 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
     append_data(trg_db, "FN125_lamprey", fn125_lamprey, verbose = verbose)
   }
 
-
   fn125_tags <- get_nearshore_fn125_tags(prj_cds, src_dbase)
   fn125_xtags <- get_nearshore_fn125_xtags(prj_cds, src_dbase)
   if (nrow(fn125_xtags)) {
@@ -191,10 +200,12 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
     )
     cat(msg)
     fn125_tags <- rbind(fn125_tags, fn125_xtags)
-    fn125_tags <- fn125_tags[with(
-      fn125_tags,
-      order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, FISH_TAG_ID)
-    ), ]
+    fn125_tags <- fn125_tags[
+      with(
+        fn125_tags,
+        order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, FISH_TAG_ID)
+      ),
+    ]
     counter <- 1
     for (i in 1:nrow(fn125_tags)) {
       if (i > 1) {
@@ -211,22 +222,26 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
   cat(sprintf("\tFN125_tag records: %s\n", nrow(fn125_tags)))
   append_data(trg_db, "FN125_tags", fn125_tags, verbose = verbose)
 
-
   fn126 <- get_nearshore_fn126(prj_cds, src_dbase)
   cat(sprintf("\tFN126 records: %s\n", nrow(fn126)))
   append_data(trg_db, "FN126", fn126, verbose = verbose)
 
-
   # get the FN125 preferred age data:
   fn125_ages <- get_nearshore_fn125_ages(prj_cds, src_dbase)
-
 
   if (file.exists("xagem2agemt.csv")) {
     # update any missing agemt values from their xagem using the values in this csv:
     xagem2agemt <- utils::read.csv("xagem2agemt.csv")
     fn125_ages <- merge(fn125_ages, xagem2agemt, by = "XAGEM", all.x = T)
-    fn125_ages$AGEMT <- ifelse(!is.na(fn125_ages$AGEMT.x), fn125_ages$AGEMT.x, fn125_ages$AGEMT.y)
-    fn125_ages <- fn125_ages[, !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))]
+    fn125_ages$AGEMT <- ifelse(
+      !is.na(fn125_ages$AGEMT.x),
+      fn125_ages$AGEMT.x,
+      fn125_ages$AGEMT.y
+    )
+    fn125_ages <- fn125_ages[
+      ,
+      !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))
+    ]
   } else {
     msg <- "Unable to find 'xagem2agemt.csv' skipping FN125 agemt updates."
     message(msg)
@@ -238,22 +253,29 @@ nearshore_to_template <- function(prj_cds, src_dbase, template_db, fname = NA, l
   fn127 <- rbind(fn125_ages, fn127)
   cat(sprintf("\tSC127 records: %s\n", nrow(fn127)))
   if (nrow(fn127)) {
-    fn127 <- fn127[with(fn127, order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, AGEID)), ]
+    fn127 <- fn127[
+      with(fn127, order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, AGEID)),
+    ]
     fn127$AGEMT[is.na(fn127$AGEMT)] <- "99999"
     append_data(trg_db, "FN127", fn127, verbose = verbose)
   }
 
-  populate_readme(trg_db, src_dbase)
+  msg <- sprintf(
+    "Template populated from %s on %s",
+    basename(src_dbase),
+    Sys.time()
+  )
+  update_readme(trg_db, msg)
 
   msg <- paste0(
     sprintf(
-      "Done. The populated database can be found here: \n\t%s.  \n", trg_db
+      "Done. The populated database can be found here: \n\t%s.  \n",
+      trg_db
     ),
     "You should be able to check it with Process Validate and upload it to the assessment portal.\n"
   )
   message(msg)
 }
-
 
 
 ##' Fetch FN011 data from Nearshore Database
@@ -287,7 +309,6 @@ get_nearshore_fn011 <- function(prj_cds, src_db) {
 }
 
 
-
 ##' Fetch FN022 data from Nearshore Database
 ##'
 ##' This function will connect to the source database and extract the
@@ -301,7 +322,6 @@ get_nearshore_fn011 <- function(prj_cds, src_db) {
 ##' @author R. Adam Cottrill
 get_nearshore_fn022 <- function(prj_cds, src_db) {
   # a function replace the Get_FN022 query from the mapper database.
-
 
   sql <- "SELECT PRJ_CD, '00' AS SSN, 'COMING SOON' AS SSN_DES,
            MIN(EFFDT0) AS SSN_DATE0, MAX(EFFDT1) AS SSN_DATE1
@@ -317,7 +337,6 @@ get_nearshore_fn022 <- function(prj_cds, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN026 data from Nearshore Database
@@ -360,9 +379,6 @@ get_nearshore_fn026 <- function(prj_cds, src_db) {
 }
 
 
-
-
-
 ##' Fetch FN026_subspace data from Nearshore Database
 ##'
 ##' This function will connect to the source database and extract the
@@ -402,8 +418,6 @@ get_nearshore_fn026_subspace <- function(prj_cds, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
-
 
 
 ##' Fetch FN028 data from Nearshore Database
@@ -448,7 +462,6 @@ get_nearshore_fn028 <- function(prj_cds, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN121 data from Nearshore Database
@@ -542,10 +555,6 @@ get_nearshore_fn121 <- function(prj_cds, src_db) {
 }
 
 
-
-
-
-
 ##' Fetch FN122 data from Nearshore Database
 ##'
 ##' This function will connect to the source database and extract the
@@ -580,7 +589,6 @@ get_nearshore_fn122 <- function(prj_cds, src_db) {
 }
 
 
-
 ##' Fetch FN123 data from Nearshore Database
 ##'
 ##' This function will connect to the source database and extract the
@@ -611,9 +619,6 @@ get_nearshore_fn123 <- function(prj_cds, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
-
-
 
 
 ##' Fetch FN125 data from Nearshore Database
@@ -669,7 +674,6 @@ get_nearshore_fn125 <- function(prj_cds, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
 
 
 ##' Fetch FN125_tags data from Nearshore Database
@@ -736,8 +740,6 @@ get_nearshore_fn125_xtags <- function(prj_cds, src_db) {
   dat <- fetch_sql(src_db, stmt)
   return(dat)
 }
-
-
 
 
 ##' Fetch FN125_lamprey data from Nearshore Database
@@ -837,8 +839,6 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
   dat <- dat[with(dat, order(PRJ_CD, SAM, EFF, SPC, GRP, FISH, FOOD)), ]
   return(dat)
 }
-
-
 
 
 ##' Fetch FN125 Age data from Nearshore Database

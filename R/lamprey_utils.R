@@ -55,7 +55,7 @@ process_fn125_lamprey <- function(df) {
   tmp$LAMICJ_TYPE <- character()
   tmp$LAMICJ_SIZE <- character()
 
-  for (i in 1:nrow(df)) {
+  for (i in seq_len(nrow(df))) {
     fish <- df[i, ]
     if (is.na(df$LAMIJC[i])) {
       fish$LAMIJC_TYPE <- NA
@@ -68,7 +68,7 @@ process_fn125_lamprey <- function(df) {
         fish$LAMIJC_SIZE <- NA
         tmp <- rbind(tmp, fish)
       } else {
-        for (w in 1:nrow(wounds)) {
+        for (w in seq_len(nrow(wounds))) {
           fish$LAMID <- w
           fish$LAMIJC_TYPE <- wounds[w, 1]
           fish$LAMIJC_SIZE <- wounds[w, 2]

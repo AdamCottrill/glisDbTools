@@ -5,6 +5,7 @@
 .DS_Store
 .quarto
 build/*
+sandbox/*
 scratch.R
 *.accdb
 *.laccdb

@@ -20,7 +20,6 @@ get_date_fields <- function() {
 }
 
 
-
 ##' Known Time Fields in Upload template
 ##'
 ##' This function returns a character vector containing the list of
@@ -71,14 +70,19 @@ get_time <- function(timestamp) {
   # extract time from date/time string
 
   time_regex <- ".*([0-2][0-9]:[0-5][0-9]:[0-5][0-9])$"
-  timestamp <- ifelse(is.na(timestamp), timestamp, gsub(time_regex, "\\1", timestamp, perl = TRUE))
+  timestamp <- ifelse(
+    is.na(timestamp),
+    timestamp,
+    gsub(time_regex, "\\1", timestamp, perl = TRUE)
+  )
 
   msg <- paste0(
     "One or more values is not a valid time or timestamp. ",
     "The time component should be in the format HH:MM:SS."
   )
 
-  ifelse(!grepl(time_regex, timestamp[!is.na(timestamp)]),
+  ifelse(
+    !grepl(time_regex, timestamp[!is.na(timestamp)]),
     stop(msg),
     timestamp[!is.na(timestamp)]
   )
@@ -110,7 +114,6 @@ get_date <- function(timestamp) {
   date_string <- gsub(" 00:00:00$", "", timestamp)
   return(date_string)
 }
-
 
 
 ##' Prepare Date and Time Fields for MS Access

@@ -27,12 +27,13 @@ fetch_table_data(
 }}
 
 \item{stringsAsFactors}{\itemize{
-\item passed to RODBC, should string values be returned
-as character vectors or converted factors?
+\item passed to RODBC, should string values be
+returned as character vectors or converted factors?
 }}
 
 \item{na.strings}{\itemize{
-\item passed to RODBC - default placeholder or empty or missing strings.
+\item passed to RODBC - default placeholder or empty
+or missing strings.
 }}
 }
 \value{

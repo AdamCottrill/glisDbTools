@@ -2,7 +2,7 @@
 % Please edit documentation in R/creesys_utils.R
 \name{creesys_to_template}
 \alias{creesys_to_template}
-\title{Poplate Template from Creesys}
+\title{Populate Template from Creesys}
 \usage{
 creesys_to_template(
   prj_cd,
@@ -29,7 +29,8 @@ template
 }}
 
 \item{lake}{\itemize{
-\item abbreviation that will be used to populate
+\item the Lake abbreviation that will be used to populate
+the F011 table
 }}
 
 \item{verbose}{\itemize{
@@ -48,9 +49,9 @@ Migrate a creel project from Creesys 4.1 to GLIS Creel Template
 }
 \details{
 This function is the workhorse of the UGLMU creel mapper. It
-migrates the data for a single project into a creel tempalte
-database that can then be run throught process validate and
-uploaded to creel portal.  It depends on an assocaited ms access
+migrates the data for a single project into a creel template
+database that can then be run through Process Validate and
+uploaded to creel portal.  It depends on an associated ms access
 file that contains queries to make most of the transformations.
 These queries are parameterized to accept a prj_cd string, and are
 all named "get_tablename".
