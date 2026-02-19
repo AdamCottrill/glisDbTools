@@ -1,19 +1,20 @@
 ##' Migrate a creel project from Creesys 4.1 to GLIS Creel Template
 ##'
 ##' This function is the workhorse of the UGLMU creel mapper. It
-##' migrates the data for a single project into a creel tempalte
-##' database that can then be run throught process validate and
-##' uploaded to creel portal.  It depends on an assocaited ms access
+##' migrates the data for a single project into a creel template
+##' database that can then be run through Process Validate and
+##' uploaded to creel portal.  It depends on an associated ms access
 ##' file that contains queries to make most of the transformations.
 ##' These queries are parameterized to accept a prj_cd string, and are
 ##' all named "get_tablename".
-##' @title Poplate Template from Creesys
+##' @title Populate Template from Creesys
 ##' @param prj_cd - the project code of the creel we want to migrate
 ##'   into a template database.
 ##' @param src_dbase - path to the database with mapping queries
 ##' @param template_db - path to a copy of the current GLIS creel
 ##'   template
-##' @param lake - abbreviation that will be used to populate
+##' @param lake - the Lake abbreviation that will be used to populate
+##'   the F011 table
 ##' @param verbose - should the append statements with submitted the
 ##'   the verbose flag.  Default is FALSE, but TRUE can be useful to
 ##'   debug database errors.
@@ -23,13 +24,12 @@
 ##' @return NULL
 ##' @author R. Adam Cottrill
 creesys_to_template <- function(
-  prj_cd,
-  src_dbase,
-  template_db,
-  lake = "HU",
-  verbose = FALSE,
-  overwrite = FALSE
-) {
+    prj_cd,
+    src_dbase,
+    template_db,
+    lake = "HU",
+    verbose = FALSE,
+    overwrite = FALSE) {
   build_dir <- file.path(getwd(), "build")
   if (!dir.exists(build_dir)) {
     dir.create(build_dir)
@@ -194,7 +194,8 @@ creesys_to_template <- function(
       fn125_ages$AGEMT.x,
       fn125_ages$AGEMT.y
     )
-    fn125_ages <- fn125_ages[,
+    fn125_ages <- fn125_ages[
+      ,
       !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))
     ]
   } else {

@@ -225,14 +225,13 @@ format_prj_cd_sql <- function(sql, prj_cd) {
 ##' @export
 ##' @author R. Adam Cottrill
 append_data <- function(
-  dbase,
-  trg_table,
-  data,
-  append = T,
-  safer = T,
-  check_names = T,
-  verbose = F
-) {
+    dbase,
+    trg_table,
+    data,
+    append = T,
+    safer = T,
+    check_names = T,
+    verbose = F) {
   check_accdb(dbase)
 
   if (check_names) {
@@ -438,11 +437,10 @@ WHERE (((FN123.PRJ_CD) Is Null));"
 ##' @return fn121 dataframe with populated PROCESS_TYPE column
 ##' @author R. Adam Cottrill
 fn121_populate_process_type <- function(
-  fn028,
-  fn121,
-  fn122,
-  gear_effort_process_types
-) {
+    fn028,
+    fn121,
+    fn122,
+    gear_effort_process_types) {
   eff_counts <- stats::aggregate(EFF ~ PRJ_CD + SAM, data = fn122, FUN = length)
   gept_counts <- stats::aggregate(
     EFF ~ GR + PROCESS_TYPE,
@@ -562,12 +560,11 @@ make_fn012 <- function(fn011, default_protocol = "BSM") {
 ##' @export
 ##' @author R. Adam Cottrill
 compare_tables <- function(
-  dbX,
-  dbY,
-  tablename,
-  x_label = "glis",
-  y_label = "old_master"
-) {
+    dbX,
+    dbY,
+    tablename,
+    x_label = "glis",
+    y_label = "old_master") {
   check_accdb(dbX)
   check_accdb(dbY)
 
@@ -683,12 +680,11 @@ get_tablenames <- function(trg_db) {
 ##'   table.
 ##' @author R. Adam Cottrill
 fetch_table_data <- function(
-  src_db,
-  tablename,
-  as.is = TRUE,
-  stringsAsFactors = FALSE,
-  na.strings = ""
-) {
+    src_db,
+    tablename,
+    as.is = TRUE,
+    stringsAsFactors = FALSE,
+    na.strings = "") {
   check_accdb(src_db)
   sql <- sprintf("select * from [%s];", tablename)
   conn <- RODBC::odbcConnectAccess2007(
@@ -730,12 +726,11 @@ fetch_table_data <- function(
 ##' @export
 ##' @author R. Adam Cottrill
 recode_prj_cd <- function(
-  src_db,
-  orig_prj_cd,
-  new_prj_cd,
-  trg_name = NULL,
-  overwrite = FALSE
-) {
+    src_db,
+    orig_prj_cd,
+    new_prj_cd,
+    trg_name = NULL,
+    overwrite = FALSE) {
   # check the src_db
   check_accdb(src_db)
   # validate the project codes
@@ -1086,11 +1081,10 @@ unmerge_templates <- function(dbX, dbY, prompt = TRUE) {
 ##'
 ##' }
 populate_grid5 <- function(
-  db,
-  verbose = TRUE,
-  overwrite = FALSE,
-  grid_format = c("slug", "number")
-) {
+    db,
+    verbose = TRUE,
+    overwrite = FALSE,
+    grid_format = c("slug", "number")) {
   grid_format <- match.arg(grid_format)
   ## check_accdb(db)
   ## sql <- "select [PRJ_CD], [SAM], [DD_LAT0], [DD_LON0], [GRID5] from FN121;"
