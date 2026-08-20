@@ -131,6 +131,7 @@ get_date <- function(timestamp) {
 ##' @title Prepare Date and Time Fields
 ##' @param payload - a dataframe
 ##' @return dataframe
+##' @export
 ##' @seealso get_date_fields, get_time_fields
 ##' @author R. Adam Cottrill
 prep_date_time_fields <- function(payload) {
