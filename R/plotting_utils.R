@@ -130,6 +130,7 @@ procval_plot <- function(
 ##'   "Kflen" for Fulton's K calculated using Fork Length or , or
 ##'   "Ktlen" Fulton's K calculated using Total Length.
 ##' @return - plot
+##' @export
 ##' @author R. Adam Cottrill
 condition_plots <- function(
   fish,
@@ -293,7 +294,7 @@ condition_plots <- function(
 ##'   subsettting FN012 for the given species and grp.
 ##' @param what The type of condiition factor to plot - must be one of
 ##'   FLEN, TLEN or RWT
-##'
+##' @export
 ##' @return plot
 ##' @author R. Adam Cottrill
 bioattr_plot <- function(
@@ -590,7 +591,7 @@ sc121_map <- function(src_db, fill0 = "red", radius = 3) {
 }
 
 
-##' Capture inforamtion printed to the console
+##' Capture information printed to the console
 ##'
 ##' A simple little helper to capture information printed by the
 ##' console and return it as a string.
@@ -618,6 +619,7 @@ print_and_capture <- function(x) {
 ##'   longitude to be checked.  Data is extracted by index, so column
 ##'   names don't matter and extra columns will be ignored.
 ##' @return dataframe
+##' @export
 ##' @author R. Adam Cottrill
 check_points <- function(pts) {
   # pull out any points that are: missing lat, missing lon, or have a
@@ -720,6 +722,7 @@ check_point_pairs <- function(ptsA, ptsB) {
 ##' @param radius - An optional integer representing the size of the
 ##'   plotting symbol.  Defaults to 3.
 ##' @return leaflet plot
+##' @export
 ##' @author R. Adam Cottrill
 ##'
 point_map <- function(

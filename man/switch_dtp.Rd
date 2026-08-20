@@ -23,8 +23,9 @@ Switch DTP value in target table
 }
 \details{
 this function will execute an update statement that will switch
-the values of DTP in the specified table.  The field argument is
-used to generalize the function to work with FN025 table too.
+the values of DTP in the specified table in the target table.  The
+field argument is used to generalize the function to work with
+FN025 table too.
 }
 \author{
 R. Adam Cottrill

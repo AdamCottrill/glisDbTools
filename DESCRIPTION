@@ -1,6 +1,6 @@
 Package: glisDbTools
 Title: A collection of utility functions for working with GLIS upload templates
-Version: 2026.02.19
+Version: 2026.08.20
 Authors@R:
     person("Adam", "Cottrill", , "adam.cottrill@ontario.ca", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))

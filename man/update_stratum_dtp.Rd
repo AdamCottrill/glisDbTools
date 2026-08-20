@@ -18,7 +18,7 @@ Update the DTP value in the Stratum of the target table
 }
 \details{
 This function will execute an update statement that will switch
-the values of DTP in stratum field of the specified table.
+the values of DTP in stratum field of the specified table in the targe database.
 }
 \author{
 R. Adam Cottrill

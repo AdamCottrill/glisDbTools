@@ -26,13 +26,14 @@
 ##' @return NULL
 ##' @author R. Adam Cottrill
 nearshore_to_template <- function(
-    prj_cds,
-    src_dbase,
-    template_db,
-    fname = NA,
-    lake = "HU",
-    verbose = FALSE,
-    overwrite = FALSE) {
+  prj_cds,
+  src_dbase,
+  template_db,
+  fname = NA,
+  lake = "HU",
+  verbose = FALSE,
+  overwrite = FALSE
+) {
   # TODO:
   process_type <- 1
 
@@ -238,8 +239,7 @@ nearshore_to_template <- function(
       fn125_ages$AGEMT.x,
       fn125_ages$AGEMT.y
     )
-    fn125_ages <- fn125_ages[
-      ,
+    fn125_ages <- fn125_ages[,
       !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))
     ]
   } else {
@@ -288,6 +288,7 @@ nearshore_to_template <- function(
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN011 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn011 <- function(prj_cds, src_db) {
   # a function replace the Get_FN011 query from the mapper database.
@@ -319,6 +320,7 @@ get_nearshore_fn011 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN022 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn022 <- function(prj_cds, src_db) {
   # a function replace the Get_FN022 query from the mapper database.
@@ -349,6 +351,7 @@ get_nearshore_fn022 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN026 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn026 <- function(prj_cds, src_db) {
   # a function replace the Get_FN026 query from the mapper database.
@@ -389,6 +392,7 @@ get_nearshore_fn026 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN026_subspace data for the
 ##'   specified assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn026_subspace <- function(prj_cds, src_db) {
   # a function replace the Get_FN026_subspace query from the mapper database.
@@ -430,6 +434,7 @@ get_nearshore_fn026_subspace <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN028 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn028 <- function(prj_cds, src_db) {
   # a function replace the Get_FN028 query from the mapper database.
@@ -474,6 +479,7 @@ get_nearshore_fn028 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN121 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn121 <- function(prj_cds, src_db) {
   # a function replace the Get_FN121 query from the mapper database.
@@ -565,6 +571,7 @@ get_nearshore_fn121 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN122 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn122 <- function(prj_cds, src_db) {
   # a function replace the Get_FN122 query from the mapper database.
@@ -599,6 +606,7 @@ get_nearshore_fn122 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN123 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn123 <- function(prj_cds, src_db) {
   # a function replace the Get_FN123 query from the mapper database.
@@ -631,6 +639,7 @@ get_nearshore_fn123 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN125 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn125 <- function(prj_cds, src_db) {
   # a function replace the Get_FN125 query from the mapper database.
@@ -686,6 +695,7 @@ get_nearshore_fn125 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN125_tags data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn125_tags <- function(prj_cds, src_db) {
   # a function replace the Get_FN125 query from the mapper database.
@@ -753,6 +763,7 @@ get_nearshore_fn125_xtags <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN125 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn125_lamprey <- function(prj_cds, src_db) {
   # a function replace the Get_FN125_tags query from the mapper database.
@@ -789,6 +800,7 @@ get_nearshore_fn125_lamprey <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN126 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn126 <- function(prj_cds, src_db) {
   # a function replace the Get_FN126 query from the mapper database.
@@ -852,6 +864,7 @@ get_nearshore_fn126 <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN126 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn125_ages <- function(prj_cds, src_db) {
   sql <- "select
@@ -914,6 +927,7 @@ get_nearshore_fn125_ages <- function(prj_cds, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN127 data for the specified
 ##'   assessment project
+##' @export
 ##' @author R. Adam Cottrill
 get_nearshore_fn127 <- function(prj_cds, src_db) {
   # a function replace the Get_FN126 query from the mapper database.

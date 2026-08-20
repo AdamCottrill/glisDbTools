@@ -2,7 +2,7 @@
 ##'
 ##' A function that takes a LAMIJC wound string that encodes an
 ##' arbirary number of lamprey wounds into individual lamprey wound
-##' records.  The string "A125B230" is parsed into c( "A125B", "230"
+##' records.  The string "A125B230" is parsed into c( "A125", "B230"
 ##' ).  An error is raised if the provided string does not match the
 ##' IJC lamprey wounding conventions
 ##' @title Split LAMIJC into wounds
@@ -10,6 +10,7 @@
 ##'   observation. See data dictionary for more details.
 ##' @return a dataframe containing one row for each wound encoded in
 ##'   the LAMIJC string.
+##' @export
 ##' @author R. Adam Cottrill
 split_lamijc <- function(wound) {
   wnd_regex <- "^0$|^([A|B][1-4])+$|^([A|B][1-4][1-5][0-9])+$"
@@ -49,6 +50,7 @@ split_lamijc <- function(wound) {
 ##' @return dataframe with keyfields, plus columns for XLAM,
 ##'   LAMICJ_TYPE,LAMICJ_TYPE. There will be one row for each lamprey
 ##'   wound observation (rather than one row per fish)
+##' @export
 ##' @author R. Adam Cottrill
 process_fn125_lamprey <- function(df) {
   tmp <- df[FALSE, ]

@@ -24,12 +24,13 @@
 ##' @return NULL
 ##' @author R. Adam Cottrill
 creesys_to_template <- function(
-    prj_cd,
-    src_dbase,
-    template_db,
-    lake = "HU",
-    verbose = FALSE,
-    overwrite = FALSE) {
+  prj_cd,
+  src_dbase,
+  template_db,
+  lake = "HU",
+  verbose = FALSE,
+  overwrite = FALSE
+) {
   build_dir <- file.path(getwd(), "build")
   if (!dir.exists(build_dir)) {
     dir.create(build_dir)
@@ -194,8 +195,7 @@ creesys_to_template <- function(
       fn125_ages$AGEMT.x,
       fn125_ages$AGEMT.y
     )
-    fn125_ages <- fn125_ages[
-      ,
+    fn125_ages <- fn125_ages[,
       !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))
     ]
   } else {
@@ -266,6 +266,7 @@ creesys_to_template <- function(
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN011 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn011 <- function(prj_cd, src_db) {
   # a function replace the Get_FN011 query from the mapper database.
@@ -291,6 +292,7 @@ get_creesys_fn011 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN022 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn022 <- function(prj_cd, src_db) {
   # a function replace the Get_FN022 query from the mapper database.
@@ -317,6 +319,7 @@ get_creesys_fn022 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN023 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn023 <- function(prj_cd, src_db) {
   # a function replace the Get_FN023 query from the mapper database.
@@ -342,6 +345,7 @@ get_creesys_fn023 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN024 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn024 <- function(prj_cd, src_db) {
   # a function replace the Get_FN024 query from the mapper database.
@@ -367,6 +371,7 @@ get_creesys_fn024 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN025 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn025 <- function(prj_cd, src_db) {
   # a function replace the Get_FN025 query from the mapper database.
@@ -394,6 +399,7 @@ get_creesys_fn025 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN026 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn026 <- function(prj_cd, src_db) {
   # a function replace the Get_FN026 query from the mapper database.
@@ -419,6 +425,7 @@ get_creesys_fn026 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN026_subspace data for the
 ##'   specified creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn026_subspace <- function(prj_cd, src_db) {
   # a function replace the Get_FN026_subspace query from the mapper database.
@@ -445,6 +452,7 @@ get_creesys_fn026_subspace <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN028 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn028 <- function(prj_cd, src_db) {
   # a function replace the Get_FN028 query from the mapper database.
@@ -469,6 +477,7 @@ get_creesys_fn028 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN111 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn111 <- function(prj_cd, src_db) {
   # a function replace the Get_FN111 query from the mapper database.
@@ -496,6 +505,7 @@ get_creesys_fn111 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN112 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn112 <- function(prj_cd, src_db) {
   # a function replace the Get_FN112 query from the mapper database.
@@ -521,6 +531,7 @@ get_creesys_fn112 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN121 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn121 <- function(prj_cd, src_db) {
   # a function replace the Get_FN121 query from the mapper database.
@@ -595,6 +606,7 @@ get_creesys_fn121 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN123 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn123 <- function(prj_cd, src_db) {
   # a function replace the Get_FN123 query from the mapper database.
@@ -621,6 +633,7 @@ get_creesys_fn123 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN125 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn125 <- function(prj_cd, src_db) {
   # a function replace the Get_FN125 query from the mapper database.
@@ -651,6 +664,7 @@ get_creesys_fn125 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN125 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn125_tags <- function(prj_cd, src_db) {
   # a function replace the Get_FN125_tags query from the mapper database.
@@ -677,6 +691,7 @@ get_creesys_fn125_tags <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN125 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn125_lamprey <- function(prj_cd, src_db) {
   # a function replace the Get_FN125_tags query from the mapper database.
@@ -703,6 +718,7 @@ get_creesys_fn125_lamprey <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN126 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn126 <- function(prj_cd, src_db) {
   # a function replace the Get_FN126 query from the mapper database.
@@ -731,6 +747,7 @@ get_creesys_fn126 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN126 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn125_ages <- function(prj_cd, src_db) {
   sql <- "SELECT
@@ -786,6 +803,7 @@ get_creesys_fn125_ages <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the FN127 data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_fn127 <- function(prj_cd, src_db) {
   # a function replace the Get_FN126 query from the mapper database.
@@ -830,6 +848,7 @@ get_creesys_fn127 <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the question data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_questions <- function(prj_cd, src_db) {
   sql <- "SELECT PRJ_CD, ANG_OP AS QUESTION_NUMBER, ANG_QUES AS QUESTION_TEXT
@@ -852,6 +871,7 @@ get_creesys_questions <- function(prj_cd, src_db) {
 ##' @param src_db - path to the accdb with the src data
 ##' @return - dataframe containing the answer data for the specified
 ##'   creel
+##' @export
 ##' @author R. Adam Cottrill
 get_creesys_answers <- function(prj_cd, src_db) {
   # a function replace the Get_FN126 query from the mapper database.
@@ -865,7 +885,6 @@ get_creesys_answers <- function(prj_cd, src_db) {
   return(dat)
 }
 
-
 ##' Standarize daytype encoding
 ##'
 ##' This function will switch the encoding used to indicate week-days
@@ -878,6 +897,7 @@ get_creesys_answers <- function(prj_cd, src_db) {
 ##' @param trg_db  - path to the accdb with the template database that is
 ##'   being populated.
 ##' @return NULL
+##' @export
 ##' @author R. Adam Cottrill
 switch_and_update_dtp <- function(trg_db) {
   check_accdb(trg_db)
@@ -899,8 +919,9 @@ switch_and_update_dtp <- function(trg_db) {
 ##' Switch DTP value in target table
 ##'
 ##' this function will execute an update statement that will switch
-##' the values of DTP in the specified table.  The field argument is
-##' used to generalize the function to work with FN025 table too.
+##' the values of DTP in the specified table in the target table.  The
+##' field argument is used to generalize the function to work with
+##' FN025 table too.
 ##' @title Switch DTP value in target table
 ##' @param con - an open ODBC connection to the target database.
 ##' @param table the table to run the update query against.
@@ -919,7 +940,7 @@ switch_dtp <- function(con, table, field = "DTP") {
 ##' Update the DTP value in the Stratum of the target table
 ##'
 ##' This function will execute an update statement that will switch
-##' the values of DTP in stratum field of the specified table.
+##' the values of DTP in stratum field of the specified table in the targe database.
 ##' @title Update the DTP value in the Stratum field
 ##' @param con - an open ODBC connection to the target database.
 ##' @param table the table to run the update query against.

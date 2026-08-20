@@ -22,7 +22,7 @@ Split wide lamijc into long lamprey wound records
 \details{
 A function that takes a LAMIJC wound string that encodes an
 arbirary number of lamprey wounds into individual lamprey wound
-records.  The string "A125B230" is parsed into c( "A125B", "230"
+records.  The string "A125B230" is parsed into c( "A125", "B230"
 ).  An error is raised if the provided string does not match the
 IJC lamprey wounding conventions
 }

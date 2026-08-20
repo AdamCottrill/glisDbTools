@@ -15,7 +15,7 @@ print_and_capture(x)
 string
 }
 \description{
-Capture inforamtion printed to the console
+Capture information printed to the console
 }
 \details{
 A simple little helper to capture information printed by the
