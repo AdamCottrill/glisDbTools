@@ -26,14 +26,13 @@
 ##' @return NULL
 ##' @author R. Adam Cottrill
 nearshore_to_template <- function(
-  prj_cds,
-  src_dbase,
-  template_db,
-  fname = NA,
-  lake = "HU",
-  verbose = FALSE,
-  overwrite = FALSE
-) {
+    prj_cds,
+    src_dbase,
+    template_db,
+    fname = NA,
+    lake = "HU",
+    verbose = FALSE,
+    overwrite = FALSE) {
   # TODO:
   process_type <- 1
 
@@ -239,7 +238,8 @@ nearshore_to_template <- function(
       fn125_ages$AGEMT.x,
       fn125_ages$AGEMT.y
     )
-    fn125_ages <- fn125_ages[,
+    fn125_ages <- fn125_ages[
+      ,
       !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))
     ]
   } else {

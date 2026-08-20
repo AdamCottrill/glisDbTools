@@ -29,14 +29,13 @@
 ##' @export
 ##' @author R. Adam Cottrill
 append_data <- function(
-  dbase,
-  trg_table,
-  data,
-  append = T,
-  safer = T,
-  check_names = T,
-  verbose = F
-) {
+    dbase,
+    trg_table,
+    data,
+    append = T,
+    safer = T,
+    check_names = T,
+    verbose = F) {
   check_accdb(dbase)
 
   if (check_names) {

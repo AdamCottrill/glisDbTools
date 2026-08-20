@@ -59,12 +59,11 @@ build_trg_name <- function(src_db, orig_prj_cd, new_prj_cd, trg_name = NULL) {
 ##' @export
 ##' @author R. Adam Cottrill
 recode_prj_cd <- function(
-  src_db,
-  orig_prj_cd,
-  new_prj_cd,
-  trg_name = NULL,
-  overwrite = FALSE
-) {
+    src_db,
+    orig_prj_cd,
+    new_prj_cd,
+    trg_name = NULL,
+    overwrite = FALSE) {
   # check the src_db
   check_accdb(src_db)
   # validate the project codes

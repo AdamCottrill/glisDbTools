@@ -14,11 +14,10 @@
 ##' @export
 ##' @author R. Adam Cottrill
 fn121_populate_process_type <- function(
-  fn028,
-  fn121,
-  fn122,
-  gear_effort_process_types
-) {
+    fn028,
+    fn121,
+    fn122,
+    gear_effort_process_types) {
   eff_counts <- stats::aggregate(EFF ~ PRJ_CD + SAM, data = fn122, FUN = length)
   gept_counts <- stats::aggregate(
     EFF ~ GR + PROCESS_TYPE,

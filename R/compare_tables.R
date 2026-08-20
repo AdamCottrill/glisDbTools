@@ -16,12 +16,11 @@
 ##' @export
 ##' @author R. Adam Cottrill
 compare_tables <- function(
-  dbX,
-  dbY,
-  tablename,
-  x_label = "glis",
-  y_label = "old_master"
-) {
+    dbX,
+    dbY,
+    tablename,
+    x_label = "glis",
+    y_label = "old_master") {
   check_accdb(dbX)
   check_accdb(dbY)
 

@@ -29,12 +29,11 @@
 ##' @export
 ##' @author R. Adam Cottrill
 procval_plot <- function(
-  src,
-  spc,
-  grp = "00",
-  what = c("FLEN", "TLEN", "RWT", "Kflen", "Ktlen"),
-  glis_fish = NULL
-) {
+    src,
+    spc,
+    grp = "00",
+    what = c("FLEN", "TLEN", "RWT", "Kflen", "Ktlen"),
+    glis_fish = NULL) {
   what <- match.arg(what)
 
   sql012 <- sprintf(

@@ -28,12 +28,11 @@
 ##' @author R. Adam Cottrill
 ##'
 point_map <- function(
-  pt0s,
-  pt1s = NULL,
-  fill0 = "red",
-  fill1 = "blue",
-  radius = 3
-) {
+    pt0s,
+    pt1s = NULL,
+    fill0 = "red",
+    fill1 = "blue",
+    radius = 3) {
   # map <- leaflet::leaflet()
   # map <- leaflet::addTiles(map)
 

@@ -20,10 +20,9 @@
 ##' @export
 ##' @author R. Adam Cottrill
 condition_plots <- function(
-  fish,
-  species_attributes,
-  what = c("Kflen", "Ktlen")
-) {
+    fish,
+    species_attributes,
+    what = c("Kflen", "Ktlen")) {
   what <- match.arg(what)
   what <- toupper(gsub("K", "", what))
 

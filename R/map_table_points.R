@@ -27,22 +27,20 @@
 ##' @return leaflet map
 ##' @author R. Adam Cottrill
 map_table_points <- function(
-  src_db,
-  table_name = c(
-    "FN026",
-    "FN026_Subspace",
-    "FN121",
-    "FN121_GPS_Tracks",
-    "SC121"
-  ),
-  fill0 = "red",
-  fill1 = "blue",
-  radius = 3
-) {
+    src_db,
+    table_name = c(
+      "FN026",
+      "FN026_Subspace",
+      "FN121",
+      "FN121_GPS_Tracks",
+      "SC121"
+    ),
+    fill0 = "red",
+    fill1 = "blue",
+    radius = 3) {
   table_name <- match.arg(table_name)
 
-  mymap <- switch(
-    table_name,
+  mymap <- switch(table_name,
     FN026 = fn026_map(src_db, fill0 = fill0, radius = radius),
     FN026_Subspace = fn026_subspace_map(src_db, fill0 = fill0, radius = radius),
     FN121 = fn121_map(src_db, fill0 = fill0, fill1 = fill1, radius = radius),

@@ -49,12 +49,11 @@ sort_by_fn_keys <- function(df) {
 ##' @export
 ##' @author R. Adam Cottrill
 fetch_table_data <- function(
-  src_db,
-  tablename,
-  as.is = TRUE,
-  stringsAsFactors = FALSE,
-  na.strings = ""
-) {
+    src_db,
+    tablename,
+    as.is = TRUE,
+    stringsAsFactors = FALSE,
+    na.strings = "") {
   check_accdb(src_db)
   sql <- sprintf("select * from [%s];", tablename)
   conn <- RODBC::odbcConnectAccess2007(

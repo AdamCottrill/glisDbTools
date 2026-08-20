@@ -39,11 +39,10 @@
 ##'
 ##' }
 populate_grid5 <- function(
-  db,
-  verbose = TRUE,
-  overwrite = FALSE,
-  grid_format = c("slug", "number")
-) {
+    db,
+    verbose = TRUE,
+    overwrite = FALSE,
+    grid_format = c("slug", "number")) {
   grid_format <- match.arg(grid_format)
   ## check_accdb(db)
   ## sql <- "select [PRJ_CD], [SAM], [DD_LAT0], [DD_LON0], [GRID5] from FN121;"

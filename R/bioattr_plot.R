@@ -23,10 +23,9 @@
 ##' @return plot
 ##' @author R. Adam Cottrill
 bioattr_plot <- function(
-  fish,
-  species_attributes,
-  what = c("FLEN", "TLEN", "RWT")
-) {
+    fish,
+    species_attributes,
+    what = c("FLEN", "TLEN", "RWT")) {
   what <- match.arg(what)
 
   # get the column numbers for data we want to plot depending on

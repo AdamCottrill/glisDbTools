@@ -24,13 +24,12 @@
 ##' @return NULL
 ##' @author R. Adam Cottrill
 creesys_to_template <- function(
-  prj_cd,
-  src_dbase,
-  template_db,
-  lake = "HU",
-  verbose = FALSE,
-  overwrite = FALSE
-) {
+    prj_cd,
+    src_dbase,
+    template_db,
+    lake = "HU",
+    verbose = FALSE,
+    overwrite = FALSE) {
   build_dir <- file.path(getwd(), "build")
   if (!dir.exists(build_dir)) {
     dir.create(build_dir)
@@ -195,7 +194,8 @@ creesys_to_template <- function(
       fn125_ages$AGEMT.x,
       fn125_ages$AGEMT.y
     )
-    fn125_ages <- fn125_ages[,
+    fn125_ages <- fn125_ages[
+      ,
       !(names(fn125_ages) %in% c("XAGEM", "AGEMT.x", "AGEMT.y"))
     ]
   } else {
